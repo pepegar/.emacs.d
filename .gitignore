@@ -3,3 +3,5 @@ backups/
 elpa/
 places
 
+projectile-bookmarks.eld
+projectile.cache
