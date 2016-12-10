@@ -1,11 +1,7 @@
 (setq user-full-name "Pepe García")
 (setq user-mail-address "jlgarhdez@gmail.com")
 
-(setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin:/home/abedra/.cabal/bin" (getenv "PATH")))
-(setenv "GOPATH" (concat (getenv "HOME") "/src/golang"))
-(add-to-list 'exec-path (concat (getenv "GOPATH") "/bin"))
 (require 'cl)
-
 (load "package")
 (package-initialize)
 (add-to-list 'package-archives
@@ -14,6 +10,21 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
 (setq package-archive-enable-alist '(("melpa" deft magit)))
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("c5a886cc9044d8e6690a60f33db45506221aa0777a82ad1f7fe11a96d203fa44" default))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
 
 (defvar pepegar/packages '(
                            helm
@@ -33,7 +44,12 @@
                            restclient
                            scala-mode
                            ensime
-                           evil)
+                           evil
+                           evil-leader
+                           evil-magit
+                           hydandata-light-theme
+                           neotree
+                           )
   "Default packages")
 
 (defun pepegar/packages-installed-p ()
@@ -50,16 +66,29 @@
 
 (require 'evil)
 (evil-mode 1)
+(require 'evil-magit)
+(require 'evil-leader)
 
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-c p h") 'helm-projectile)
-
-(setq inhibit-splash-screen t
+(setq make-backup-files nil
+      inhibit-splash-screen t
       initial-scratch-message nil
       initial-major-mode 'org-mode)
 
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(projectile-global-mode)
+(load-theme 'hydandata-light)
 
+
+(set-face-attribute 'default nil :height 150)
+
+(global-linum-mode t)
+(global-evil-leader-mode)
+(projectile-global-mode)
+(evil-leader/set-leader "<SPC>")
+(evil-leader/set-key
+  "<SPC>" 'helm-M-x
+  "ft" 'neotree-toggle
+  )
