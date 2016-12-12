@@ -27,8 +27,12 @@
                            evil
                            evil-leader
                            evil-magit
-                           hydandata-light-theme
+                           monokai-theme
                            neotree
+                           flycheck
+                           restclient
+                           smart-mode-line
+                           markdown-toc
                            )
   "Default packages")
 

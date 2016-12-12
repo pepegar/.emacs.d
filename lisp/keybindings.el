@@ -7,6 +7,7 @@
   "ww" 'other-window
   "w/" 'split-window-right
   "w-" 'split-window-below
+  "gs" 'magit-status
   )
 
 (require 'scala-keybindings)
