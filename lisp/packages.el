@@ -15,8 +15,7 @@
 (require 'bind-key)
 
 (use-package autopair
-  :ensure t
-  :diminish pair-mode)
+  :ensure t)
 
 (use-package helm
   :ensure t
@@ -24,10 +23,16 @@
 	  ("C-c p p" . helm-projectile-switch-project)
 	  ("C-c p h" . helm-projectile)
 	  ("M-x" . helm-M-x)
+	  ("C-x C-b" . helm-buffers-list)
 	  ))
 
 (use-package projectile
   :ensure t)
+
+
+(use-package cus-edit
+  :config
+  (setq custom-file (make-temp-file "")))
 
 (use-package helm-projectile
   :ensure t)
@@ -39,6 +44,7 @@
   :ensure t)
 
 (use-package flycheck
+  :diminish flycheck-mode
   :ensure t)
 
 (use-package gist
@@ -76,19 +82,40 @@
   :ensure t)
 
 (use-package restclient
-  :ensure t)
+  :ensure t
+  :mode "\\.http\\'")
 
 (use-package scala-mode
   :ensure t)
 
 (use-package ensime
-  :ensure t)
+  :ensure t
+  :bind ([f10] . ensime-reload)
+  :config
+  (setq ensime-startup-notification nil
+	ensime-startup-snapshot-notification nil))
 
 (use-package monokai-theme
   :ensure t)
 
-(use-package neotree
+(use-package punpun-theme
   :ensure t)
+
+(use-package white-theme
+  :ensure t)
+
+(use-package arjen-grey-theme
+  :ensure t)
+
+(use-package helm-themes
+    :ensure t
+    :if (display-graphic-p)
+    :bind ([f9] . helm-themes))
+
+(use-package neotree
+  :ensure t
+  :bind (([f8] . neotree-toggle)
+	 ))
 
 (use-package flycheck
   :ensure t)
@@ -96,12 +123,8 @@
 (use-package restclient
   :ensure t)
 
-(use-package smart-mode-line
-  :ensure t)
-
 (use-package markdown-toc
   :ensure t)
-
 
 (use-package multiple-cursors
   :ensure t
@@ -133,5 +156,36 @@
 	       ("C-. =" . mc/compare-chars))
     (eval-after-load 'cua-base
       '(bind-key "C-. C-," 'mc/cua-rectangle-to-multiple-cursors cua--rectangle-keymap))))
+
+(use-package yasnippet
+  :diminish yas-minor-mode
+  :commands (yas-minor-mode)
+  :init (progn (add-hook 'prog-mode-hook #'yas-minor-mode))
+  :config (progn (yas-reload-all)))
+
+(use-package expand-region
+  :ensure t
+  :bind ("C-@" . er/expand-region))
+
+(use-package geiser
+  :ensure t)
+
+(use-package haskell-mode
+  :ensure t
+  :config
+  (progn
+    (use-package intero
+      :ensure t
+      :config
+      (progn 
+        (add-hook 'haskell-mode-hook 'intero-mode)))))
+
+(use-package helm-ag
+  :ensure t
+  :bind ("C-c a g" . helm-do-ag-project-root))
+
+(use-package github-browse-file
+  :ensure t)
+
 
 (provide 'packages)

@@ -1,7 +1,7 @@
 (require 'autopair)
 (global-flycheck-mode)
 
-(set-face-attribute 'default nil :family "Source Code Pro" :height 145 :weight 'normal)
+(set-face-attribute 'default nil :family "PragmataPro" :height 155 :weight 'normal)
 
 (show-paren-mode t)
 (setq show-paren-style 'mixed)
@@ -16,20 +16,11 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 
-(load-theme 'monokai t)
-
-(set-face-attribute 'default nil :height 150)
+(load-theme 'punpun-dark t)
+(set-face-attribute 'default nil :height 140)
 
 (global-linum-mode t)
 (projectile-mode)
-
-(setq ensime-startup-notification nil)
-
-(setq ensime-snapshot-notification nil)
-
-(setq sml/no-confirm-load-theme t)
-(sml/setup)
-(setq sml/theme 'dark)
 
 (setq helm-split-window-in-side-p t
       helm-mode-fuzzy-match t
