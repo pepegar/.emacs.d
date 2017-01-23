@@ -12,13 +12,44 @@
       initial-scratch-message nil
       initial-major-mode 'org-mode)
 
+(defun my-load-saved-theme ()
+  (interactive)
+  (when (file-exists-p my-saved-theme-filename)
+    (let ((theme (intern (with-temp-buffer
+                           (insert-file-contents my-saved-theme-filename)
+                           (buffer-string)))))
+      (unless (eq theme 'default)
+        (load-theme theme :no-confirm)))))
+
+(add-hook 'after-init-hook #'my-load-saved-theme)
+
+(defvar my-load-theme-hook
+  nil
+  "Hooks to run after loading a theme.")
+
+(defvar my-saved-theme-filename "~/.emacs.d/.emacs-theme")
+
+(advice-add 'load-theme :after #'my-save-theme)
+(advice-add 'disable-theme :after #'my-save-default-theme)
+(advice-add 'load-theme :after #'my-run-theme-hooks)
+
+(defun my-run-theme-hooks (theme &optional no-confirm no-enable)
+  (run-hooks 'my-load-theme-hook))
+
+(defun my-save-default-theme (disabled-theme)
+  (my-save-theme 'default))
+
+(defun my-save-theme (theme &optional no-confirm no-enable)
+  (with-temp-buffer
+    (insert (symbol-name theme))
+    (when (file-writable-p my-saved-theme-filename)
+      (write-region (point-min)
+                    (point-max)
+                    my-saved-theme-filename))))
+
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-
-(load-theme 'punpun-dark t)
-(set-face-attribute 'default nil :height 140)
-
 (global-linum-mode t)
 (projectile-mode)
 

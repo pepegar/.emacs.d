@@ -24,18 +24,45 @@
 	  ("C-c p h" . helm-projectile)
 	  ("M-x" . helm-M-x)
 	  ("C-x C-b" . helm-buffers-list)
-	  ))
+	  )
+  :config
+  (use-package helm-projectile
+    :ensure t)
+
+  (use-package helm-themes
+    :ensure t
+    :if (display-graphic-p)
+    :bind ([f9] . helm-themes))
+
+  (use-package helm-ag
+    :ensure t
+    :bind ("C-c a g" . helm-do-ag-project-root))
+
+  (use-package helm-swoop
+    :ensure t
+    :demand isearch
+    :bind (("M-i" . helm-swoop)
+           ("M-I" . helm-multi-swoop)
+           :isearch-mode-map
+           ("M-i" . helm-swoop-from-isearch)))
+  )
 
 (use-package projectile
   :ensure t)
 
+(use-package golden-ratio
+  :ensure t
+  :diminish golden-ratio-mode
+  :config (golden-ratio-mode))
+
+(use-package what-the-commit
+  :ensure t
+  :bind ("C-x g c" . what-the-commit-insert))
 
 (use-package cus-edit
   :config
   (setq custom-file (make-temp-file "")))
 
-(use-package helm-projectile
-  :ensure t)
 
 (use-package clojure-mode
   :ensure t)
@@ -88,6 +115,16 @@
 (use-package scala-mode
   :ensure t)
 
+(use-package sbt-mode
+  :commands sbt-start sbt-command
+  :config
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map))
+
 (use-package ensime
   :ensure t
   :bind ([f10] . ensime-reload)
@@ -96,21 +133,20 @@
 	ensime-startup-snapshot-notification nil))
 
 (use-package monokai-theme
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package punpun-theme
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package white-theme
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package arjen-grey-theme
-  :ensure t)
-
-(use-package helm-themes
-    :ensure t
-    :if (display-graphic-p)
-    :bind ([f9] . helm-themes))
+  :ensure t
+  :defer t)
 
 (use-package neotree
   :ensure t
@@ -129,8 +165,8 @@
 (use-package multiple-cursors
   :ensure t
   :bind (("C-* l" . mc/edit-lines)
-	 ("C-* n" . mc/mark-next-like-this)
-	 ("C-* p" . mc/mark-previous-like-this)
+	 ("C->" . mc/mark-next-like-this)
+	 ("C-<" . mc/mark-previous-like-this)
 	 ("C-* C-*" . mc/mark-all-like-this)
 	 ("C-c C-* C-*" . mc/mark-more-like-this)
 
@@ -179,10 +215,6 @@
       :config
       (progn 
         (add-hook 'haskell-mode-hook 'intero-mode)))))
-
-(use-package helm-ag
-  :ensure t
-  :bind ("C-c a g" . helm-do-ag-project-root))
 
 (use-package github-browse-file
   :ensure t)
