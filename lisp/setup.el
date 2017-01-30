@@ -2,6 +2,7 @@
 (global-flycheck-mode)
 
 (set-face-attribute 'default nil :family "PragmataPro" :height 155 :weight 'normal)
+(set-face-attribute 'default nil :height 140)
 
 (show-paren-mode t)
 (setq show-paren-style 'mixed)

@@ -2,6 +2,7 @@
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 
@@ -27,6 +28,9 @@
 	  )
   :config
   (use-package helm-projectile
+    :ensure t)
+
+  (use-package helm-descbinds
     :ensure t)
 
   (use-package helm-themes
@@ -156,6 +160,13 @@
 (use-package flycheck
   :ensure t)
 
+(use-package all-the-icons
+  :ensure t)
+
+(use-package all-the-icons-dired
+  :ensure t
+  :init (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+
 (use-package restclient
   :ensure t)
 
@@ -219,5 +230,8 @@
 (use-package github-browse-file
   :ensure t)
 
+(use-package nyan-mode
+  :ensure t
+  :init (nyan-mode 1))
 
 (provide 'packages)
