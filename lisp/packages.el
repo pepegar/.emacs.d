@@ -230,8 +230,8 @@
 (use-package github-browse-file
   :ensure t)
 
-(use-package nyan-mode
+(use-package fancy-narrow
   :ensure t
-  :init (nyan-mode 1))
+  :config (fancy-narrow-mode))
 
 (provide 'packages)
