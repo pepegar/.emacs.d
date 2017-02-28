@@ -205,10 +205,20 @@
       '(bind-key "C-. C-," 'mc/cua-rectangle-to-multiple-cursors cua--rectangle-keymap))))
 
 (use-package yasnippet
+  :ensure t
+  :defer t
   :diminish yas-minor-mode
-  :commands (yas-minor-mode)
-  :init (progn (add-hook 'prog-mode-hook #'yas-minor-mode))
-  :config (progn (yas-reload-all)))
+  :init
+  (use-package elm-yasnippets :ensure t)
+
+  (add-hook 'js2-mode-hook 'yas-minor-mode)
+  (add-hook 'haskell-mode-hook 'yas-minor-mode)
+  (add-hook 'elm-mode-hook 'yas-minor-mode)
+
+  :config
+  (yas-reload-all)
+
+  :bind (("C-t" . yas-expand)))
 
 (use-package expand-region
   :ensure t
