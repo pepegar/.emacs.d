@@ -25,6 +25,7 @@
 	  ("C-c p h" . helm-projectile)
 	  ("M-x" . helm-M-x)
 	  ("C-x C-b" . helm-buffers-list)
+	  ("C-h b" . helm-descbinds)
 	  )
   :config
   (use-package helm-projectile
@@ -103,6 +104,10 @@
 (use-package magit
   :ensure t)
 
+(use-package magithub
+    :after magit
+    :config (magithub-feature-autoinject t))
+
 (use-package markdown-mode
   :ensure t)
 
@@ -135,6 +140,10 @@
   :config
   (setq ensime-startup-notification nil
 	ensime-startup-snapshot-notification nil))
+
+(use-package idea-darkula-theme
+  :ensure t
+  :defer t)
 
 (use-package monokai-theme
   :ensure t
@@ -227,6 +236,13 @@
 (use-package geiser
   :ensure t)
 
+(use-package json-mode
+  :ensure t
+  :mode (("\\.json\\'" . json-mode))
+  :commands (json-mode)
+  :config
+  (setq js-indent-level 2))
+
 (use-package haskell-mode
   :ensure t
   :config
@@ -235,7 +251,8 @@
       :ensure t
       :config
       (progn 
-        (add-hook 'haskell-mode-hook 'intero-mode)))))
+        (add-hook 'haskell-mode-hook 'intero-mode))
+      :bind ([f10] . intero-restart))))
 
 (use-package github-browse-file
   :ensure t)
@@ -243,5 +260,8 @@
 (use-package fancy-narrow
   :ensure t
   :config (fancy-narrow-mode))
+
+(use-package yaml-mode
+  :ensure t)
 
 (provide 'packages)
