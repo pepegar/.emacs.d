@@ -141,25 +141,35 @@
   (setq ensime-startup-notification nil
 	ensime-startup-snapshot-notification nil))
 
-(use-package idea-darkula-theme
-  :ensure t
-  :defer t)
-
-(use-package monokai-theme
-  :ensure t
-  :defer t)
-
-(use-package punpun-theme
-  :ensure t
-  :defer t)
-
-(use-package white-theme
-  :ensure t
-  :defer t)
-
-(use-package arjen-grey-theme
-  :ensure t
-  :defer t)
+(use-package idea-darkula-theme :ensure t :defer t)
+(use-package monokai-theme :ensure t :defer t)
+(use-package punpun-theme :ensure t :defer t)
+(use-package white-theme :ensure t :defer t)
+(use-package arjen-grey-theme :ensure t :defer t)
+(use-package atom-one-dark-theme :ensure t :defer t)
+(use-package birds-of-paradise-plus-theme :ensure t :defer t)
+(use-package bliss-theme :ensure t :defer t)
+(use-package borland-blue-theme :ensure t :defer t)
+(use-package cyberpunk-theme :ensure t :defer t)
+(use-package django-theme :ensure t :defer t)
+(use-package eclipse-theme :ensure t :defer t)
+(use-package espresso-theme :ensure t :defer t)
+(use-package faff-theme :ensure t :defer t)
+(use-package github-theme :ensure t :defer t)
+(use-package greymatters-theme :ensure t :defer t)
+(use-package heroku-theme :ensure t :defer t)
+(use-package idea-darkula-theme :ensure t :defer t)
+(use-package plan9-theme :ensure t :defer t)
+(use-package purple-haze-theme :ensure t :defer t)
+(use-package railscasts-theme :ensure t :defer t)
+(use-package rebecca-theme :ensure t :defer t)
+(use-package solarized-theme :ensure t :defer t)
+(use-package soothe-theme :ensure t :defer t)
+(use-package subatomic-theme :ensure t :defer t)
+(use-package sublime-themes :ensure t :defer t)
+(use-package white-theme :ensure t :defer t)
+(use-package madhat2r-theme :ensure t :defer t)
+(use-package kosmos-theme :ensure t :defer t)
 
 (use-package neotree
   :ensure t
