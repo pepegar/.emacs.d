@@ -109,7 +109,12 @@
     :config (magithub-feature-autoinject t))
 
 (use-package markdown-mode
-  :ensure t)
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 
 (use-package org
   :ensure t)
@@ -122,6 +127,9 @@
   :mode "\\.http\\'")
 
 (use-package scala-mode
+  :ensure t)
+
+(use-package nix-mode
   :ensure t)
 
 (use-package sbt-mode
@@ -170,6 +178,7 @@
 (use-package white-theme :ensure t :defer t)
 (use-package madhat2r-theme :ensure t :defer t)
 (use-package kosmos-theme :ensure t :defer t)
+(use-package nord-theme :ensure t :defer t)
 
 (use-package neotree
   :ensure t
@@ -178,6 +187,10 @@
 
 (use-package flycheck
   :ensure t)
+
+(use-package dumb-jump
+  :ensure t
+  :bind (("M-RET" . dumb-jump-go)))
 
 (use-package all-the-icons
   :ensure t)

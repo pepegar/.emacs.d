@@ -7,10 +7,10 @@
 (setq show-paren-style 'mixed)
 (autopair-global-mode)
 
-(setq make-backup-files nil
-      inhibit-splash-screen t
-      initial-scratch-message nil
-      initial-major-mode 'org-mode)
+(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+
+(add-to-list 'auto-mode-alist '("\\.zsh\\'" . sh-mode))
 
 (defun my-load-saved-theme ()
   (interactive)
