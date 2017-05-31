@@ -104,22 +104,24 @@
 (use-package magit
   :ensure t
   :config
-  
+
   (use-package magithub
     :after magit
     :config (magithub-feature-autoinject t)))
 
-g(use-package hydra
+ (use-package hydra
   :ensure t
   :bind (("C-x t" . toggle/body)
 	 ("C-x j" . gotoline/body)
-	 ("C-x c" . orghydra/body))
+	 ("C-x c" . orghydra/body)
+	 ("C-x p" . dotfiles/body))
   :config
-  
+
   (defhydra toggle (:color blue)
     "toggle"
     ("a" abbrev-mode "abbrev")
     ("s" flyspell-mode "flyspell")
+    ("f" flycheck-mode "flycheck")
     ("d" toggle-debug-on-error "debug")
     ("c" fci-mode "fCi")
     ("f" auto-fill-mode "fill")
@@ -131,7 +133,17 @@ g(use-package hydra
     "org"
     ("i" org-clock-in "clock in")
     ("o" org-clock-out "clock out")
+    ("n" (find-file "~/org/notes.org") "notes.org")
+    ("I" (find-file "~/org/i.org") "i.org")
     ("q" nil "cancel"))
+
+  (defhydra dotfiles (:color black)
+    "dotfiles"
+    ("e" (find-file "~/.emacs.d/init.el") "init.el")
+    ("p" (find-file "~/.emacs.d/lisp/packages.el") "packages.el")
+    ("s" (find-file "~/.emacs.d/lisp/setup.el") "setup.el")
+    ("q" nil "cancel")
+    )
 
   (defhydra gotoline
     ( :pre (linum-mode 1)
@@ -155,7 +167,13 @@ g(use-package hydra
 	      ("m" . elfeed-toggle-star)
 	      ("M" . elfeed-toggle-star)
 	      ("j" . mz/hydra-elfeed/body)
-	      ("J" . mz/hydra-elfeed/body)))
+	      ("J" . mz/hydra-elfeed/body))
+  :config
+
+  (use-package elfeed-goodies
+    :ensure t
+    :config
+    (elfeed-goodies/setup)))
 
 (use-package markdown-mode
   :ensure t
@@ -332,7 +350,7 @@ g(use-package hydra
     (use-package intero
       :ensure t
       :config
-      (progn 
+      (progn
         (add-hook 'haskell-mode-hook 'intero-mode))
       :bind ([f10] . intero-restart))))
 
