@@ -47,7 +47,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (expand-region multiple-cursors flx restclient all-the-icons-dired scala-mode org-bullets hydra counsel ivy flycheck autopair diminish projectile magit-gh-pulls magit use-package))))
+    (counsel-projectile expand-region multiple-cursors flx restclient all-the-icons-dired scala-mode org-bullets hydra counsel ivy flycheck autopair diminish projectile magit-gh-pulls magit use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

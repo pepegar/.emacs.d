@@ -1,0 +1,3 @@
+* .emacs.d
+
+This is my emacs dotfiles repository.  See config.org for more :)

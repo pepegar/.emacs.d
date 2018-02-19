@@ -1,13 +1,20 @@
 * Emacs configuration
 
-This is my emacs configuration, this time in Org mode.
+This is my emacs configuration, this time in Org mode.  The previous
+working version of it was [[https://github.com/pepegar/emacs.d/tree/d6c5ef558fc4a28f7b107a4edb5c1383886a23d6][this commit]].
+
+The idea behind using org mode for this is that I can get rid of all
+these cheatsheets I've flying around my system (and also physical
+desk) and have both the emacs-lisp code, the notes, and the
+cheatsheets all here.
+
 
 ** Initial configuration
 *** Some personal information
 
 #+BEGIN_SRC emacs-lisp
-(setq user-full-name "Pepe García")
-(setq user-mail-address "jl.garhdez@gmail.com")
+(setq user-full-name "Pepe García"
+      user-mail-address "jl.garhdez@gmail.com")
 #+END_SRC
 
 *** Help emacs find my executables
@@ -17,6 +24,13 @@ This is my emacs configuration, this time in Org mode.
 (setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
 #+END_SRC
 
+*** plumbing
+
+    To tell emacs that all saves should go to the ~/.backups~ folder.
+
+#+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist `(("." . "~/.backups")))
+#+END_SRC
 *** ~use-package~
 
    I manage all the packages for my emacs configuration through the
@@ -101,7 +115,7 @@ This is my emacs configuration, this time in Org mode.
 #+END_SRC
 
 ** Tools
-   
+
 *** Magit
 
 #+BEGIN_SRC emacs-lisp
@@ -173,7 +187,6 @@ This is my emacs configuration, this time in Org mode.
       (setq ivy-use-virtual-buffers t
             ivy-count-format "%d/%d "
             ivy-re-builders-alist '(
-              (ivy-switch-buffer . ivy--regex-plus)
               (t . ivy--regex-fuzzy)))
 
   (use-package flx
@@ -182,10 +195,17 @@ This is my emacs configuration, this time in Org mode.
   (use-package counsel
     :ensure t
     :bind (("C-c a g" . counsel-ag)
-           ("M-x" . counsel-M-x)))
+           ("M-x" . counsel-M-x)
+           ("C-x C-f" . counsel-find-file)
+           ("C-c p h" . counsel-projectile)
+           ([f9] . counsel-load-theme)))
+
+  (use-package counsel-projectile
+    :ensure t)
 
   (use-package swiper
-    :ensure t))
+    :ensure t
+    :bind (("C-s" . swiper))))
 #+END_SRC
 
 *** Hydra
@@ -243,7 +263,7 @@ This is my emacs configuration, this time in Org mode.
     ("n" next-line "down")
     ("p" (lambda () (interactive) (forward-line -1))  "up")
     ("g" goto-line "goto-line")))
-#+END_SRC    
+#+END_SRC
 
 *** Restclient
 
@@ -334,7 +354,7 @@ This is my emacs configuration, this time in Org mode.
 	       ("C-. =" . mc/compare-chars))
     (eval-after-load 'cua-base
 '(bind-key "C-. C-," 'mc/cua-rectangle-to-multiple-cursors cua--rectangle-keymap))))
-#+END_SRC    
+#+END_SRC
 
 *** Expand region
 
@@ -343,35 +363,35 @@ This is my emacs configuration, this time in Org mode.
     the following function call in lisp (and that the caret is in the
     ~^~ position):
 
-#+BEGIN_SRC 
+#+BEGIN_SRC
 (hello (dolly))
          ^
 #+END_SRC
 
     If I hit ~C-@~ once, I'll get this selected:
 
-#+BEGIN_SRC 
+#+BEGIN_SRC
 (hello (dolly))
         ^---^
 #+END_SRC
 
     If I hit it once again, I'll get:
 
-#+BEGIN_SRC 
+#+BEGIN_SRC
 (hello (dolly))
        ^-----^
 #+END_SRC
 
     And if I hit it again, I'll get:
 
-#+BEGIN_SRC 
+#+BEGIN_SRC
 (hello (dolly))
  ^-----------^
 #+END_SRC
 
     Finally, if I hit it 4 times, the whole sexp will be selected:
 
-#+BEGIN_SRC 
+#+BEGIN_SRC
 (hello (dolly))
 ^-------------^
 #+END_SRC
@@ -411,7 +431,6 @@ This is my emacs configuration, this time in Org mode.
 (use-package kosmos-theme :ensure t :defer t)
 (use-package nord-theme :ensure t :defer t)
 #+END_SRC
-
 
 ** Programming languages
 
@@ -489,7 +508,7 @@ This is my emacs configuration, this time in Org mode.
 (global-set-key (kbd "M-g W") "Ω") ; OMEGA
 #+END_SRC
 
-** Thanks 
+** Thanks
 
 For this configuration I've been inspired by:
 
@@ -505,4 +524,3 @@ For this configuration I've been inspired by:
 [fn:3] https://github.com/danielmai
 [fn:4] https://github.com/jwiegley
 [fn:5] https://github.com/abo-abo
-
