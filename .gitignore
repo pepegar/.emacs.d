@@ -5,7 +5,10 @@ places
 
 projectile-bookmarks.eld
 projectile.cache
+config.el
+recentf
 
 ido.last
 .emacs-theme
 .mc-lists.el
+

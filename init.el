@@ -1,17 +1,44 @@
+;;
+;; This file is copied from @danielmai's ~init.el~
+;;
+(setq gc-cons-threshold 400000000)
+
+;;; Begin initialization
+;; Turn off mouse interface early in startup to avoid momentary display
+(when window-system
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tooltip-mode -1))
+
+(setq inhibit-startup-message t)
+(setq initial-scratch-message "")
+
+;;; Set up package
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(when (boundp 'package-pinned-packages)
+  (setq package-pinned-packages
+        '((org-plus-contrib . "org"))))
 (package-initialize)
 
-(setq user-full-name "Pepe García")
-(setq user-mail-address "jl.garhdez@gmail.com")
+;;; Bootstrap use-package
+;; Install use-package if it's not already installed.
+;; use-package is used to configure the rest of the packages.
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
-(setq exec-path (append exec-path '("/usr/local/bin")))
-(setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
+;; From use-package README
+(eval-when-compile
+  (require 'use-package))
+(require 'diminish)                ;; if you use :diminish
+(require 'bind-key)
 
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+;;; Load the config
+(org-babel-load-file (concat user-emacs-directory "config.org"))
 
-(require 'packages)
-(require 'setup)
+(setq gc-cons-threshold 800000)
 
-(load "~/.emacs.d/lisp/greek.el")
-
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)

@@ -1,0 +1,302 @@
+* Emacs configuration
+
+> This is my emacs configuration, this time in Org mode.
+
+** Some personal information
+
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "Pepe García")
+(setq user-mail-address "jl.garhdez@gmail.com")
+#+END_SRC
+
+** Help emacs find my executables
+
+#+BEGIN_SRC emacs-lisp
+(setq exec-path (append exec-path '("/usr/local/bin")))
+(setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
+#+END_SRC
+
+** ~use-package~
+
+   I manage all the packages for my emacs configuration through the
+   fantastic [[https://github.com/jwiegley/use-package][use-package]]. Here's how to get it:
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(package-initialize)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+
+(require 'bind-key)
+#+END_SRC
+
+** Tools
+
+*** Magit
+
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :ensure t
+  :config
+
+  (use-package magit-gh-pulls
+    :ensure t
+    :init
+    (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls)))
+#+END_SRC
+
+*** Projectile
+
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-global-mode)
+  (setq projectile-mode-line
+        '(:eval (format " [%s]" (projectile-project-name))))
+  (setq projectile-remember-window-configs t)
+  (setq projectile-completion-system 'ivy))
+#+END_SRC
+*** Diminish
+
+    You don't always want the minor modes you're using to appear on
+    the modeline, that's what ~diminish~ is for.
+
+#+BEGIN_SRC emacs-lisp
+(use-package diminish
+  :ensure t
+  :pin melpa-stable)
+#+END_SRC
+
+*** Autopair
+
+    Autopair is a minor mode that magically pairs your parens.  This
+    means that when you open a ~(~, it inserts a ~)~ as well.
+
+#+BEGIN_SRC emacs-lisp
+(use-package autopair
+  :ensure t
+  :diminish autopair-mode)
+#+END_SRC
+
+*** Flycheck
+
+    Flycheck is a spellchecker.  Truth be told, I don't use it very
+    much... but yeah, here it is!
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t
+  :pin melpa-stable)
+#+END_SRC
+
+*** Ivy, counsel, swiper
+
+    I'm mostly a helm user, but want to give ivy a try now.  Ivy comes
+    out of the box with ~counsel~ and ~swiper~.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ivy
+  :ensure t
+  :diminish ivy-mode
+  :config
+      (setq ivy-use-virtual-buffers t
+            ivy-count-format "%d/%d ")
+
+  (use-package counsel
+    :ensure t
+    :bind (("C-c a g" . counsel-ag)))
+
+  (use-package swiper
+    :ensure t))
+#+END_SRC
+
+*** Hydra
+
+    Hydra allows me to create menus of keybindings.  I have several
+    ones, for accessing my dotfiles, spelllchecking, going to my org
+    files...
+
+#+BEGIN_SRC emacs-lisp
+(use-package hydra
+  :ensure t
+  :bind (("C-x t" . toggle/body)
+	 ("C-x j" . gotoline/body)
+	 ("C-x c" . orghydra/body)
+	 ("C-x p" . dotfiles/body))
+  :config
+
+  (defhydra toggle (:color blue)
+    "toggle"
+    ("a" abbrev-mode "abbrev")
+    ("s" flyspell-mode "flyspell")
+    ("f" flycheck-mode "flycheck")
+    ("d" toggle-debug-on-error "debug")
+    ("c" fci-mode "fCi")
+    ("t" toggle-truncate-lines "truncate")
+    ("w" whitespace-mode "whitespace")
+    ("q" nil "cancel"))
+
+  (defhydra orghydra (:color blue)
+    "org"
+    ("i" org-clock-in "clock in")
+    ("o" org-clock-out "clock out")
+    ("n" (find-file "~/org/notes.org") "notes.org")
+    ("I" (find-file "~/org/i.org") "i.org")
+    ("q" nil "cancel"))
+
+  (defhydra dotfiles (:color black)
+    "dotfiles"
+    ("e" (find-file "~/.emacs.d/init.el") "init.el")
+    ("p" (find-file "~/.emacs.d/lisp/packages.el") "packages.el")
+    ("k" (find-file "~/.emacs.d/lisp/keybinds.el") "keybinds.el")
+    ("s" (find-file "~/.emacs.d/lisp/setup.el") "setup.el")
+    ("z" (find-file "~/.zshrc") "zshrc")
+    ("q" nil "cancel"))
+
+  (defhydra gotoline
+    ( :pre (linum-mode 1)
+	   :post (linum-mode -1))
+    "goto"
+    ("t" (lambda () (interactive)(move-to-window-line-top-bottom 0)) "top")
+    ("b" (lambda () (interactive)(move-to-window-line-top-bottom -1)) "bottom")
+    ("m" (lambda () (interactive)(move-to-window-line-top-bottom)) "middle")
+    ("e" (lambda () (interactive)(end-of-buffer)) "end")
+    ("c" recenter-top-bottom "recenter")
+    ("n" next-line "down")
+    ("p" (lambda () (interactive) (forward-line -1))  "up")
+    ("g" goto-line "goto-line")))
+#+END_SRC    
+
+*** Org mode
+
+    I try to write down everything in org mode, and to keep it
+    updated.  This is my current configuration.
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :ensure t
+  :bind (("C-c a a" . org-agenda)
+	 ("C-c c" . org-capture))
+  :config
+
+  (use-package org-bullets
+    :ensure t
+    :commands (org-bullets-mode)
+    :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((dot . t)
+     (mscgen . t)
+     (python . t)))
+  (setq org-agenda-files '("~/org/")
+	org-default-notes-file (concat org-directory "/notes.org")
+	org-capture-templates '(("a" "Appointment" entry (file  "~/org/appointments.org" "Appointments") "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n\n")
+				("n" "Note" entry (file+headline "~/org/notes.org" "Notes") "* Note %?\n%T")
+				("l" "Link" entry (file+headline "~/org/links.org" "Links") "* %? %^L %^g \n%T" :prepend t)
+				("P" "Paper" entry (file+headline "~/org/papers.org" "Papers") "* %? %^L %^g \n%T" :prepend t)
+				("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
+				("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))
+	org-src-fontify-natively t))
+#+END_SRC
+
+** Themes
+
+   I switch between a big number of themes, sometimes several times a
+   day, depending on my mood.  The ones I stick with as of now, are
+   the following:
+
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+
+
+
+** Programming languages
+
+   At the time of writing this, I mostly write scala, but I've used a
+   number of languages previously:
+
+#+BEGIN_SRC emacs-lisp
+(use-package scala-mode
+  :ensure t
+  :interpreter ("scala" . scala-mode))
+#+END_SRC
+
+** Weird characters I write
+
+   In a day to day basis, I only use the ~λ~ there, but who knows? Now
+   I can write most of those letters :)
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-g a") "α") ; alpha
+(global-set-key (kbd "M-g b") "β") ; beta
+(global-set-key (kbd "M-g g") "γ") ; gamma
+(global-set-key (kbd "M-g d") "δ") ; delta
+(global-set-key (kbd "M-g e") "ε") ; epsilon
+(global-set-key (kbd "M-g z") "ζ") ; zeta
+(global-set-key (kbd "M-g h") "η") ; eta
+(global-set-key (kbd "M-g q") "θ") ; theta
+(global-set-key (kbd "M-g i") "ι") ; iota
+(global-set-key (kbd "M-g k") "κ") ; kappa
+(global-set-key (kbd "M-g l") "λ") ; lambda
+(global-set-key (kbd "M-g m") "μ") ; mu
+(global-set-key (kbd "M-g n") "ν") ; nu
+(global-set-key (kbd "M-g x") "ξ") ; xi
+(global-set-key (kbd "M-g o") "ο") ; omicron
+(global-set-key (kbd "M-g p") "π") ; pi
+(global-set-key (kbd "M-g r") "ρ") ; rho
+(global-set-key (kbd "M-g s") "σ") ; psi
+(global-set-key (kbd "M-g t") "τ") ; tau
+(global-set-key (kbd "M-g u") "υ") ; upsilon
+(global-set-key (kbd "M-g f") "ϕ") ; phi
+(global-set-key (kbd "M-g j") "φ") ; phi
+(global-set-key (kbd "M-g c") "χ") ; xi
+(global-set-key (kbd "M-g y") "ψ") ; psi
+(global-set-key (kbd "M-g w") "ω") ; omega
+(global-set-key (kbd "M-g A") "Α") ; ALPHA
+(global-set-key (kbd "M-g B") "Β") ; BETA
+(global-set-key (kbd "M-g G") "Γ") ; GAMMA
+(global-set-key (kbd "M-g D") "Δ") ; DELTA
+(global-set-key (kbd "M-g E") "Ε") ; EPSILON
+(global-set-key (kbd "M-g Z") "Ζ") ; ZETA
+(global-set-key (kbd "M-g H") "Η") ; ETA
+(global-set-key (kbd "M-g Q") "Θ") ; THETA
+(global-set-key (kbd "M-g I") "Ι") ; IOTA
+(global-set-key (kbd "M-g K") "Κ") ; KAPPA
+(global-set-key (kbd "M-g L") "Λ") ; LAMBDA
+(global-set-key (kbd "M-g M") "Μ") ; MU
+(global-set-key (kbd "M-g N") "Ν") ; NU
+(global-set-key (kbd "M-g X") "Ξ") ; XI
+(global-set-key (kbd "M-g O") "Ο") ; OMICRON
+(global-set-key (kbd "M-g P") "Π") ; PI
+(global-set-key (kbd "M-g R") "Ρ") ; RHO
+(global-set-key (kbd "M-g S") "Σ") ; PSI
+(global-set-key (kbd "M-g T") "Τ") ; TAU
+(global-set-key (kbd "M-g U") "Υ") ; UPSILON
+(global-set-key (kbd "M-g F") "Φ") ; PHI
+(global-set-key (kbd "M-g J") "Φ") ; PHI
+(global-set-key (kbd "M-g C") "Χ") ; XI
+(global-set-key (kbd "M-g Y") "Ψ") ; PSI
+(global-set-key (kbd "M-g W") "Ω") ; OMEGA
+#+END_SRC
+
+** Thanks 
+
+For this configuration I've been inspired by:
+
+- @anler
+- @danielmai
+- @jwiegley
