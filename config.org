@@ -1,22 +1,23 @@
 * Emacs configuration
 
-> This is my emacs configuration, this time in Org mode.
+This is my emacs configuration, this time in Org mode.
 
-** Some personal information
+** Initial configuration
+*** Some personal information
 
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "Pepe García")
 (setq user-mail-address "jl.garhdez@gmail.com")
 #+END_SRC
 
-** Help emacs find my executables
+*** Help emacs find my executables
 
 #+BEGIN_SRC emacs-lisp
 (setq exec-path (append exec-path '("/usr/local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
 #+END_SRC
 
-** ~use-package~
+*** ~use-package~
 
    I manage all the packages for my emacs configuration through the
    fantastic [[https://github.com/jwiegley/use-package][use-package]]. Here's how to get it:
@@ -41,8 +42,66 @@
 (require 'bind-key)
 #+END_SRC
 
-** Tools
+*** Appearance
 
+    Select the font size, family...
+
+#+BEGIN_SRC emacs-lisp
+(set-face-attribute
+ 'default nil :family "Operator Mono"
+ :height 170)
+
+(use-package all-the-icons
+  :ensure t)
+
+(use-package all-the-icons-dired
+  :ensure t
+  :init (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+#+END_SRC
+
+*** maintaining selected theme between sessions
+
+    I think I got all this from @anler, but am not sure :)
+
+#+BEGIN_SRC emacs-lisp
+(defun my-load-saved-theme ()
+  (interactive)
+  (when (file-exists-p my-saved-theme-filename)
+    (let ((theme (intern (with-temp-buffer
+                           (insert-file-contents my-saved-theme-filename)
+                           (buffer-string)))))
+      (unless (eq theme 'default)
+        (load-theme theme :no-confirm)))))
+
+(add-hook 'after-init-hook #'my-load-saved-theme)
+
+(defvar my-load-theme-hook
+  nil
+  "Hooks to run after loading a theme.")
+
+(defvar my-saved-theme-filename "~/.emacs.d/.emacs-theme")
+
+(advice-add 'load-theme :after #'my-save-theme)
+(advice-add 'disable-theme :after #'my-save-default-theme)
+(advice-add 'load-theme :after #'my-run-theme-hooks)
+
+(defun my-run-theme-hooks (theme &optional no-confirm no-enable)
+  (run-hooks 'my-load-theme-hook))
+
+(defun my-save-default-theme (disabled-theme)
+  (my-save-theme 'default))
+
+(defun my-save-theme (theme &optional no-confirm no-enable)
+  (with-temp-buffer
+    (insert (symbol-name theme))
+    (when (file-writable-p my-saved-theme-filename)
+      (write-region (point-min)
+                    (point-max)
+                    my-saved-theme-filename))))
+#+END_SRC
+
+** Tools
+   
 *** Magit
 
 #+BEGIN_SRC emacs-lisp
@@ -112,11 +171,18 @@
   :diminish ivy-mode
   :config
       (setq ivy-use-virtual-buffers t
-            ivy-count-format "%d/%d ")
+            ivy-count-format "%d/%d "
+            ivy-re-builders-alist '(
+              (ivy-switch-buffer . ivy--regex-plus)
+              (t . ivy--regex-fuzzy)))
+
+  (use-package flx
+    :ensure t)
 
   (use-package counsel
     :ensure t
-    :bind (("C-c a g" . counsel-ag)))
+    :bind (("C-c a g" . counsel-ag)
+           ("M-x" . counsel-M-x)))
 
   (use-package swiper
     :ensure t))
@@ -179,6 +245,29 @@
     ("g" goto-line "goto-line")))
 #+END_SRC    
 
+*** Restclient
+
+    Restclient is an awesome tool that allows you to describe HTTP
+    request in plain text and execute them.  From [fn:1]their readme:
+
+    | keybinding | action                                                                                         |
+    |------------+------------------------------------------------------------------------------------------------|
+    | ~C-c C-c~  | runs the query under the cursor, tries to pretty-print the response (if possible)              |
+    | ~C-c C-r~  | same, but doesn't do anything with the response, just shows the buffer                         |
+    | ~C-c C-v~  | same as C-c C-c, but doesn't switch focus to other window                                      |
+    | ~C-c C-p~  | jump to the previous query                                                                     |
+    | ~C-c C-n~  | jump to the next query                                                                         |
+    | ~C-c C-.~  | mark the query under the cursor                                                                |
+    | ~C-c C-u~  | copy query under the cursor as a curl command                                                  |
+    | ~C-c C-g~  | start a helm session with sources for variables and requests (if helm is available, of course) |
+    | ~C-c n n~  | narrow to regi                                                                                 |
+
+#+BEGIN_SRC emacs-lisp
+(use-package restclient
+  :ensure t
+  :mode (("\\.http\\'" . restclient-mode)))
+#+END_SRC
+
 *** Org mode
 
     I try to write down everything in org mode, and to keep it
@@ -212,6 +301,87 @@
 	org-src-fontify-natively t))
 #+END_SRC
 
+*** Multiple cursors
+
+#+BEGIN_SRC emacs-lisp
+(use-package multiple-cursors
+  :ensure t
+  :bind (("C-* l" . mc/edit-lines)
+	 ("C->" . mc/mark-next-like-this)
+	 ("C-<" . mc/mark-previous-like-this)
+	 ("C-* C-*" . mc/mark-all-like-this)
+	 ("C-c C-* C-*" . mc/mark-more-like-this)
+
+	 ("C-* i" . mc/insert-numbers)
+	 ("C-* s" . mc/sort-regions)
+	 ("C-* r" . mc/reverse-regions)
+	 ("M-<mouse-1>" . mc/add-cursor-on-click))
+  :init
+  (global-unset-key (kbd "M-<down-mouse-1>"))
+  :config
+  (require 'mc-extras))
+
+(use-package mc-extras
+  :ensure t
+  :commands (mc/compare-chars mc/compare-chars-backward mc/compare-chars-forward
+			      mc/cua-rectangle-to-multiple-cursors
+			      mc/remove-current-cursor mc/remove-duplicated-cursors)
+  :config
+  (progn
+    (bind-keys :map mc/keymap
+	       ("C-. C-d" . mc/remove-current-cursor)
+	       ("C-. d" . mc/remove-duplicated-cursors)
+	       ("C-. =" . mc/compare-chars))
+    (eval-after-load 'cua-base
+'(bind-key "C-. C-," 'mc/cua-rectangle-to-multiple-cursors cua--rectangle-keymap))))
+#+END_SRC    
+
+*** Expand region
+
+    Expand region is an useful little tool.  With it I can select a
+    higher region each time I hit ~C-@~.  For example, imagine we have
+    the following function call in lisp (and that the caret is in the
+    ~^~ position):
+
+#+BEGIN_SRC 
+(hello (dolly))
+         ^
+#+END_SRC
+
+    If I hit ~C-@~ once, I'll get this selected:
+
+#+BEGIN_SRC 
+(hello (dolly))
+        ^---^
+#+END_SRC
+
+    If I hit it once again, I'll get:
+
+#+BEGIN_SRC 
+(hello (dolly))
+       ^-----^
+#+END_SRC
+
+    And if I hit it again, I'll get:
+
+#+BEGIN_SRC 
+(hello (dolly))
+ ^-----------^
+#+END_SRC
+
+    Finally, if I hit it 4 times, the whole sexp will be selected:
+
+#+BEGIN_SRC 
+(hello (dolly))
+^-------------^
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :ensure t
+  :bind ("C-@" . er/expand-region))
+#+END_SRC
+
 ** Themes
 
    I switch between a big number of themes, sometimes several times a
@@ -219,9 +389,28 @@
    the following:
 
 #+BEGIN_SRC emacs-lisp
-
+(use-package doom-themes :pin melpa-stable :ensure t :defer t)
+(use-package idea-darkula-theme :ensure t :defer t)
+(use-package punpun-theme :ensure t :defer t)
+(use-package white-theme :ensure t :defer t)
+(use-package arjen-grey-theme :ensure t :defer t)
+(use-package atom-one-dark-theme :ensure t :defer t)
+(use-package birds-of-paradise-plus-theme :ensure t :defer t)
+(use-package bliss-theme :ensure t :defer t)
+(use-package cyberpunk-theme :ensure t :defer t)
+(use-package espresso-theme :ensure t :defer t)
+(use-package github-theme :ensure t :defer t)
+(use-package heroku-theme :ensure t :defer t)
+(use-package idea-darkula-theme :ensure t :defer t)
+(use-package plan9-theme :ensure t :defer t)
+(use-package soothe-theme :ensure t :defer t)
+(use-package subatomic-theme :ensure t :defer t)
+(use-package sublime-themes :ensure t :defer t)
+(use-package white-theme :ensure t :defer t)
+(use-package madhat2r-theme :ensure t :defer t)
+(use-package kosmos-theme :ensure t :defer t)
+(use-package nord-theme :ensure t :defer t)
 #+END_SRC
-
 
 
 ** Programming languages
@@ -233,6 +422,13 @@
 (use-package scala-mode
   :ensure t
   :interpreter ("scala" . scala-mode))
+#+END_SRC
+
+** Some more configuration for when all packages has been loaded
+
+#+BEGIN_SRC emacs-lisp
+(require 'diminish)
+(require 'bind-key)
 #+END_SRC
 
 ** Weird characters I write
@@ -297,6 +493,16 @@
 
 For this configuration I've been inspired by:
 
-- @anler
-- @danielmai
-- @jwiegley
+- [fn:2]anler
+- [fn:3]danielmai
+- [fn:4]jwiegley
+- [fn:5]abo-abo
+
+* Footnotes
+
+[fn:1] https://github.com/pashky/restclient.el
+[fn:2] https://github.com/anler/.emacs.d
+[fn:3] https://github.com/danielmai
+[fn:4] https://github.com/jwiegley
+[fn:5] https://github.com/abo-abo
+
