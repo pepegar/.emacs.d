@@ -1,11 +1,18 @@
 (require 'autopair)
 (global-flycheck-mode)
 
-(set-face-attribute 'default nil :family "PragmataPro" :height 140)
+(set-face-attribute
+ 'default nil :family "Operator Mono"
+ :height 170)
 
+
+(global-unset-key (kbd "C-z"))
 (show-paren-mode t)
 (setq show-paren-style 'mixed)
 (autopair-global-mode)
+
+(setq initial-scratch-message "Scratch\n\n...")
+(setq initial-buffer-choice t)
 
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
@@ -50,7 +57,6 @@
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(global-linum-mode t)
 (projectile-mode)
 
 (setq helm-split-window-in-side-p t
@@ -65,5 +71,18 @@
       helm-split-window-in-side-p t
       helm-M-x-fuzzy-match t
       )
+
+(setq-default mode-line-format
+      '("%e"
+        mode-line-front-space
+        mode-line-client
+        mode-line-modified
+        " "
+        mode-line-directory
+        mode-line-buffer-identification
+        " "
+        mode-line-modes
+        mode-line-misc-info
+        mode-line-end-spaces))
 
 (provide 'setup)

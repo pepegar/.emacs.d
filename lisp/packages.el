@@ -16,7 +16,8 @@
 (require 'bind-key)
 
 (use-package autopair
-  :ensure t)
+  :ensure t
+  :diminish autopair-mode)
 
 (use-package helm
   :ensure t
@@ -53,7 +54,8 @@
   )
 
 (use-package projectile
-  :ensure t)
+  :ensure t
+  :diminish projectile-mode)
 
 (use-package golden-ratio
   :ensure t
@@ -82,8 +84,9 @@
 (use-package gist
   :ensure t)
 
-(use-package haskell-mode
-  :ensure t)
+(use-package idris-mode
+  :ensure t
+  :pin melpa-stable)
 
 (use-package hungry-delete
   :ensure t
@@ -105,9 +108,10 @@
   :ensure t
   :config
 
-  (use-package magithub
-    :after magit
-    :config (magithub-feature-autoinject t)))
+  (use-package magit-gh-pulls
+    :ensure t
+    :init
+    (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls)))
 
  (use-package hydra
   :ensure t
@@ -124,7 +128,6 @@
     ("f" flycheck-mode "flycheck")
     ("d" toggle-debug-on-error "debug")
     ("c" fci-mode "fCi")
-    ("f" auto-fill-mode "fill")
     ("t" toggle-truncate-lines "truncate")
     ("w" whitespace-mode "whitespace")
     ("q" nil "cancel"))
@@ -141,9 +144,10 @@
     "dotfiles"
     ("e" (find-file "~/.emacs.d/init.el") "init.el")
     ("p" (find-file "~/.emacs.d/lisp/packages.el") "packages.el")
+    ("g" (find-file "~/.emacs.d/lisp/greek.el") "greek.el")
     ("s" (find-file "~/.emacs.d/lisp/setup.el") "setup.el")
-    ("q" nil "cancel")
-    )
+    ("z" (find-file "~/.zshrc") "zshrc")
+    ("q" nil "cancel"))
 
   (defhydra gotoline
     ( :pre (linum-mode 1)
@@ -158,23 +162,6 @@
     ("p" (lambda () (interactive) (forward-line -1))  "up")
     ("g" goto-line "goto-line")))
 
-(use-package elfeed
-  :ensure t
-  :pin melpa-stable
-  :bind (:map elfeed-search-mode-map
-	      ("q" . bjm/elfeed-save-db-and-bury)
-	      ("Q" . bjm/elfeed-save-db-and-bury)
-	      ("m" . elfeed-toggle-star)
-	      ("M" . elfeed-toggle-star)
-	      ("j" . mz/hydra-elfeed/body)
-	      ("J" . mz/hydra-elfeed/body))
-  :config
-
-  (use-package elfeed-goodies
-    :ensure t
-    :config
-    (elfeed-goodies/setup)))
-
 (use-package markdown-mode
   :ensure t
   :commands (markdown-mode gfm-mode)
@@ -188,23 +175,40 @@
   :bind (("C-c a a" . org-agenda)
 	 ("C-c c" . org-capture))
   :config
+
+  (use-package org-bullets
+    :ensure t
+    :commands (org-bullets-mode)
+    :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((dot . t)
+     (mscgen . t)
+     (python . t)))
   (setq org-agenda-files '("~/org/")
 	org-default-notes-file (concat org-directory "/notes.org")
 	org-capture-templates '(("a" "Appointment" entry (file  "~/org/appointments.org" "Appointments") "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n\n")
 				("n" "Note" entry (file+headline "~/org/notes.org" "Notes") "* Note %?\n%T")
 				("l" "Link" entry (file+headline "~/org/links.org" "Links") "* %? %^L %^g \n%T" :prepend t)
+				("P" "Paper" entry (file+headline "~/org/papers.org" "Papers") "* %? %^L %^g \n%T" :prepend t)
 				("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
-				("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))))
+				("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))
+	org-src-fontify-natively t))
 
 (use-package paredit
   :ensure t)
 
 (use-package restclient
   :ensure t
-  :mode "\\.http\\'")
+  :mode ("\\.http\\'" . restclient-mode))
 
 (use-package scala-mode
   :ensure t)
+
+(use-package groovy-mode
+  :ensure t
+  :mode ("\\.gradle\\'" . groovy-mode))
 
 (use-package nix-mode
   :ensure t)
@@ -219,13 +223,7 @@
    'self-insert-command
    minibuffer-local-completion-map))
 
-(use-package ensime
-  :ensure t
-  :bind ([f10] . ensime-reload)
-  :config
-  (setq ensime-startup-notification nil
-	ensime-startup-snapshot-notification nil))
-
+(use-package doom-themes :pin melpa-stable :ensure t :defer t)
 (use-package idea-darkula-theme :ensure t :defer t)
 (use-package monokai-theme :ensure t :defer t)
 (use-package punpun-theme :ensure t :defer t)
@@ -345,26 +343,55 @@
 
 (use-package haskell-mode
   :ensure t
+  :mode "\\.hs\\'"
+  :commands haskell-mode
+  :bind (("C-c C-s" . fix-imports)
+	 ("C-c C-c" . haskell-compile)
+	 ("C-,"     . haskell-move-nested-left)
+	 ("C-."     . haskell-move-nested-right)
+	 ("C-c C-." . haskell-mode-format-imports)
+	 ("s-i"     . haskell-navigate-imports)
+	 ("C-c C-l" . haskell-process-load-or-reload)
+	 ("C-`"     . haskell-interactive-bring)
+	 ("C-c C-t" . haskell-process-do-type)
+	 ("C-c C-i" . haskell-process-do-info)
+	 ("C-c C-c" . haskell-process-cabal-build)
+	 ("C-c C-k" . haskell-interactive-mode-clear)
+	 ("C-c c"   . haskell-process-cabal))
   :config
-  (progn
-    (use-package intero
-      :ensure t
-      :config
-      (progn
-        (add-hook 'haskell-mode-hook 'intero-mode))
-      :bind ([f10] . intero-restart))))
+  (custom-set-variables
+   '(haskell-ask-also-kill-buffers nil)
+   '(haskell-interactive-popup-errors nil)
+   '(haskell-process-auto-import-loaded-modules t)
+   '(haskell-process-log t)
+   '(haskell-process-suggest-remove-import-lines  t)
+   '(haskell-process-type (quote stack-ghci))
+   '(haskell-stylish-on-save t))
+
+
+  (add-hook 'haskell-mode-hook 'haskell-indentation-mode)
+  (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+  (add-hook 'haskell-mode-hook 'flycheck-mode)
+  (add-hook 'haskell-mode-hook 'hindent-mode)
+  (add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
+  (add-hook 'haskell-mode-hook (lambda ()
+                                 (add-hook 'before-save-hook 'haskell-mode-format-imports nil 'local))))
 
 (use-package github-browse-file
   :ensure t)
 
 (use-package fancy-narrow
   :ensure t
+  :diminish fancy-narrow-mode
   :config (fancy-narrow-mode))
 
 (use-package yaml-mode
   :ensure t)
 
 (use-package smart-window
+  :ensure t)
+
+(use-package git-gutter
   :ensure t)
 
 (provide 'packages)
