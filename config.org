@@ -118,6 +118,8 @@ cheatsheets all here.
 
 *** Magit
 
+    Magit is a better way to use git, from within emacs, of course.
+
 #+BEGIN_SRC emacs-lisp
 (use-package magit
   :ensure t
@@ -128,6 +130,38 @@ cheatsheets all here.
     :init
     (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls)))
 #+END_SRC
+
+    There are several tricks I like to do with Magit.
+
+**** commit & spinoff branch
+
+     Normally, when I work on a small patch for a project I don't
+     directly start creating the feature branch, but first create the
+     commit/commits that solve the issue and then create the branch &
+     pull request.
+
+     I do this by fixing and creating the commits normally (on top of
+     ~master~), and then within the magit screen, I just hit ~b s~,
+     making a spinoff of master, with the last commits.  This is so
+     convenient :)
+
+**** managing/creating pull requests
+
+     For creating pull requests, I use the ~magit-gh-pulls~ package,
+     that connects to the github API via HTTP and allows me to create,
+     list, and see the Pull Requests for the repo.
+
+     Normally I need to edit the ~.git/config~ file and add the remote
+     github repo:
+
+#+BEGIN_SRC
+[magit]
+        gh-pulls-repo = pepegar/$repo
+#+END_SRC
+
+     After that's set, I can just ~# g~ to refresh the latest pull
+     requests, ~# o~ on a pr of the list to open in firefox, or ~# c~
+     to create a new PR from the existing changes.
 
 *** Projectile
 
@@ -163,6 +197,18 @@ cheatsheets all here.
   :diminish autopair-mode)
 #+END_SRC
 
+*** Etags
+
+    Etags is for browsing the code using ctags TAGS files.
+
+#+BEGIN_SRC emacs-lisp
+(use-package etags
+  :ensure t
+  :config
+  (use-package etags-select :ensure t)
+  (use-package etags-table :ensure t))
+#+END_SRC
+
 *** Flycheck
 
     Flycheck is a spellchecker.  Truth be told, I don't use it very
@@ -183,18 +229,19 @@ cheatsheets all here.
 (use-package ivy
   :ensure t
   :diminish ivy-mode
+  :bind (("C-x C-b" . ivy-switch-buffer))
   :config
       (setq ivy-use-virtual-buffers t
             ivy-count-format "%d/%d "
-            ivy-re-builders-alist '(
-              (t . ivy--regex-fuzzy)))
+            ivy-re-builders-alist '((swiper . ivy--regex-plus)
+                                    (t      . ivy--regex-fuzzy)))
 
   (use-package flx
     :ensure t)
 
   (use-package counsel
     :ensure t
-    :bind (("C-c a g" . counsel-ag)
+    :bind (("C-c a g" . counsel-projectile-ag)
            ("M-x" . counsel-M-x)
            ("C-x C-f" . counsel-find-file)
            ("C-c p h" . counsel-projectile)
@@ -244,10 +291,7 @@ cheatsheets all here.
 
   (defhydra dotfiles (:color black)
     "dotfiles"
-    ("e" (find-file "~/.emacs.d/init.el") "init.el")
-    ("p" (find-file "~/.emacs.d/lisp/packages.el") "packages.el")
-    ("k" (find-file "~/.emacs.d/lisp/keybinds.el") "keybinds.el")
-    ("s" (find-file "~/.emacs.d/lisp/setup.el") "setup.el")
+    ("c" (find-file "~/.emacs.d/config.org") "config.org")
     ("z" (find-file "~/.zshrc") "zshrc")
     ("q" nil "cancel"))
 
@@ -329,13 +373,12 @@ cheatsheets all here.
   :bind (("C-* l" . mc/edit-lines)
 	 ("C->" . mc/mark-next-like-this)
 	 ("C-<" . mc/mark-previous-like-this)
-	 ("C-* C-*" . mc/mark-all-like-this)
-	 ("C-c C-* C-*" . mc/mark-more-like-this)
-
-	 ("C-* i" . mc/insert-numbers)
-	 ("C-* s" . mc/sort-regions)
-	 ("C-* r" . mc/reverse-regions)
-	 ("M-<mouse-1>" . mc/add-cursor-on-click))
+         ("C-* C-*" . mc/mark-all-like-this)
+         ("C-c C-* C-*" . mc/mark-more-like-this)
+         ("C-* i" . mc/insert-numbers)
+         ("C-* s" . mc/sort-regions)
+         ("C-* r" . mc/reverse-regions)
+         ("M-<mouse-1>" . mc/add-cursor-on-click))
   :init
   (global-unset-key (kbd "M-<down-mouse-1>"))
   :config
@@ -344,14 +387,14 @@ cheatsheets all here.
 (use-package mc-extras
   :ensure t
   :commands (mc/compare-chars mc/compare-chars-backward mc/compare-chars-forward
-			      mc/cua-rectangle-to-multiple-cursors
-			      mc/remove-current-cursor mc/remove-duplicated-cursors)
+            mc/cua-rectangle-to-multiple-cursors
+            mc/remove-current-cursor mc/remove-duplicated-cursors)
   :config
   (progn
     (bind-keys :map mc/keymap
-	       ("C-. C-d" . mc/remove-current-cursor)
-	       ("C-. d" . mc/remove-duplicated-cursors)
-	       ("C-. =" . mc/compare-chars))
+         ("C-. C-d" . mc/remove-current-cursor)
+         ("C-. d" . mc/remove-duplicated-cursors)
+         ("C-. =" . mc/compare-chars))
     (eval-after-load 'cua-base
 '(bind-key "C-. C-," 'mc/cua-rectangle-to-multiple-cursors cua--rectangle-keymap))))
 #+END_SRC
@@ -402,6 +445,28 @@ cheatsheets all here.
   :bind ("C-@" . er/expand-region))
 #+END_SRC
 
+*** Avy
+
+    Avy allows me to jump to different parts of the current buffer.
+    There are some useful pictures of how it works in [[https://github.com/abo-abo/avy][the repo]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package avy
+  :ensure t
+  :bind (("C-:" . avy-goto-char)
+         ("C-;" . avy-goto-char-2)))
+#+END_SRC
+*** Golden ratio mode
+
+    This is a really cool minor mode.  It makes the windows just look right.
+
+#+BEGIN_SRC emacs-lisp
+(use-package golden-ratio
+  :ensure t
+  :diminish golden-ratio-mode
+:config (golden-ratio-mode))
+#+END_SRC
+
 ** Themes
 
    I switch between a big number of themes, sometimes several times a
@@ -440,7 +505,50 @@ cheatsheets all here.
 #+BEGIN_SRC emacs-lisp
 (use-package scala-mode
   :ensure t
-  :interpreter ("scala" . scala-mode))
+  :interpreter ("scala" . scala-mode)
+  :config
+  (use-package sbt-mode :ensure t))
+
+(use-package idris-mode :ensure t)
+(use-package nix-mode :ensure t)
+(use-package groovy-mode :ensure t)
+(use-package json-mode :ensure t)
+(use-package haskell-mode
+  :ensure t
+  :mode "\\.hs\\'"
+  :commands haskell-mode
+  :bind (("C-c C-s" . fix-imports)
+	 ("C-c C-c" . haskell-compile)
+	 ("C-,"     . haskell-move-nested-left)
+	 ("C-."     . haskell-move-nested-right)
+	 ("C-c C-." . haskell-mode-format-imports)
+	 ("s-i"     . haskell-navigate-imports)
+	 ("C-c C-l" . haskell-process-load-or-reload)
+	 ("C-`"     . haskell-interactive-bring)
+	 ("C-c C-t" . haskell-process-do-type)
+	 ("C-c C-i" . haskell-process-do-info)
+	 ("C-c C-c" . haskell-process-cabal-build)
+	 ("C-c C-k" . haskell-interactive-mode-clear)
+	 ("C-c c"   . haskell-process-cabal))
+  :config
+  (custom-set-variables
+   '(haskell-ask-also-kill-buffers nil)
+   '(haskell-interactive-popup-errors nil)
+   '(haskell-process-auto-import-loaded-modules t)
+   '(haskell-process-log t)
+   '(haskell-process-suggest-remove-import-lines  t)
+   '(haskell-process-type (quote stack-ghci))
+   '(haskell-stylish-on-save t))
+
+
+  (add-hook 'haskell-mode-hook 'haskell-indentation-mode)
+  (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+  (add-hook 'haskell-mode-hook 'flycheck-mode)
+  (add-hook 'haskell-mode-hook 'hindent-mode)
+  (add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
+  (add-hook 'haskell-mode-hook (lambda ()
+  (add-hook 'before-save-hook 'haskell-mode-format-imports nil 'local))))
+(use-package markdown-mode :ensure t :mode "\\.md\\'")
 #+END_SRC
 
 ** Some more configuration for when all packages has been loaded
@@ -506,6 +614,7 @@ cheatsheets all here.
 (global-set-key (kbd "M-g C") "Χ") ; XI
 (global-set-key (kbd "M-g Y") "Ψ") ; PSI
 (global-set-key (kbd "M-g W") "Ω") ; OMEGA
+(global-set-key (kbd "M-g .") "∘")
 #+END_SRC
 
 ** Thanks
@@ -516,6 +625,7 @@ For this configuration I've been inspired by:
 - [fn:3]danielmai
 - [fn:4]jwiegley
 - [fn:5]abo-abo
+
 
 * Footnotes
 
