@@ -17,6 +17,12 @@ cheatsheets all here.
       user-mail-address "jl.garhdez@gmail.com")
 #+END_SRC
 
+*** load ~/.emacs.d/lisp
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+#+END_SRC
+
 *** Help emacs find my executables
 
 #+BEGIN_SRC emacs-lisp
@@ -116,6 +122,24 @@ cheatsheets all here.
 
 ** Tools
 
+*** Gnus
+
+    Gnus is for email within emacs.  Its configuration is in ~\~/.gnus~
+
+#+BEGIN_SRC emacs-lisp
+#+END_SRC
+
+*** Erc
+
+    Erc is an IRC client for emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package erc
+  :ensure t
+  :config
+    (setq erc-modules '(autojoin notifications)))
+#+END_SRC
+
 *** Magit
 
     Magit is a better way to use git, from within emacs, of course.
@@ -186,17 +210,6 @@ cheatsheets all here.
   :pin melpa-stable)
 #+END_SRC
 
-*** Autopair
-
-    Autopair is a minor mode that magically pairs your parens.  This
-    means that when you open a ~(~, it inserts a ~)~ as well.
-
-#+BEGIN_SRC emacs-lisp
-(use-package autopair
-  :ensure t
-  :diminish autopair-mode)
-#+END_SRC
-
 *** Etags
 
     Etags is for browsing the code using ctags TAGS files.
@@ -225,6 +238,13 @@ cheatsheets all here.
     I'm mostly a helm user, but want to give ivy a try now.  Ivy comes
     out of the box with ~counsel~ and ~swiper~.
 
+**** Search the word under the cursor
+
+     Open swiper-isearch with ~C-s~, and then put copy the word under
+     the cursor to the minibuffer with ~M-n~.
+
+     For extending the search to the next word, use ~M-j~.
+
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :ensure t
@@ -242,17 +262,28 @@ cheatsheets all here.
   (use-package counsel
     :ensure t
     :bind (("C-c a g" . counsel-projectile-ag)
-           ("M-x" . counsel-M-x)
+           ("M-x"     . counsel-M-x)
            ("C-x C-f" . counsel-find-file)
            ("C-c p h" . counsel-projectile)
-           ([f9] . counsel-load-theme)))
+           ([f9]      . counsel-load-theme)))
 
   (use-package counsel-projectile
     :ensure t)
 
   (use-package swiper
     :ensure t
-    :bind (("C-s" . swiper))))
+    :bind (("C-s" . swiper)
+           ("C-;" . swiper-avy))))
+#+END_SRC
+
+*** ace-window
+
+    ace-window is a better ~other-window~.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ace-window
+  :ensure t
+  :bind (("M-o" . ace-window)))
 #+END_SRC
 
 *** Hydra
@@ -293,6 +324,7 @@ cheatsheets all here.
     "dotfiles"
     ("c" (find-file "~/.emacs.d/config.org") "config.org")
     ("z" (find-file "~/.zshrc") "zshrc")
+    ("g" (find-file "~/.gnus") "gnus")
     ("q" nil "cancel"))
 
   (defhydra gotoline
@@ -341,7 +373,7 @@ cheatsheets all here.
 (use-package org
   :ensure t
   :bind (("C-c a a" . org-agenda)
-	 ("C-c c" . org-capture))
+	 ("C-c c" . counsel-org-capture))
   :config
 
   (use-package org-bullets
@@ -452,21 +484,19 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package avy
-  :ensure t
-  :bind (("C-:" . avy-goto-char)
-         ("C-;" . avy-goto-char-2)))
+  :ensure t)
 #+END_SRC
-*** Golden ratio mode
 
-    This is a really cool minor mode.  It makes the windows just look right.
+*** Golden ratio
+
+    Golden ratio makes splits looks better :)
 
 #+BEGIN_SRC emacs-lisp
 (use-package golden-ratio
   :ensure t
   :diminish golden-ratio-mode
-:config (golden-ratio-mode))
+  :config (golden-ratio-mode))
 #+END_SRC
-
 ** Themes
 
    I switch between a big number of themes, sometimes several times a
@@ -512,11 +542,11 @@ cheatsheets all here.
 (use-package idris-mode :ensure t)
 (use-package nix-mode :ensure t)
 (use-package groovy-mode :ensure t)
+(use-package yaml-mode :ensure t)
 (use-package json-mode :ensure t)
 (use-package haskell-mode
   :ensure t
   :mode "\\.hs\\'"
-  :commands haskell-mode
   :bind (("C-c C-s" . fix-imports)
 	 ("C-c C-c" . haskell-compile)
 	 ("C-,"     . haskell-move-nested-left)
@@ -528,8 +558,7 @@ cheatsheets all here.
 	 ("C-c C-t" . haskell-process-do-type)
 	 ("C-c C-i" . haskell-process-do-info)
 	 ("C-c C-c" . haskell-process-cabal-build)
-	 ("C-c C-k" . haskell-interactive-mode-clear)
-	 ("C-c c"   . haskell-process-cabal))
+	 ("C-c C-k" . haskell-interactive-mode-clear))
   :config
   (custom-set-variables
    '(haskell-ask-also-kill-buffers nil)
@@ -548,7 +577,14 @@ cheatsheets all here.
   (add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
   (add-hook 'haskell-mode-hook (lambda ()
   (add-hook 'before-save-hook 'haskell-mode-format-imports nil 'local))))
-(use-package markdown-mode :ensure t :mode "\\.md\\'")
+
+(use-package markdown-mode
+  :ensure t
+  :mode "\\.md\\'"
+  :config
+
+  (use-package markdown-toc
+    :ensure t))
 #+END_SRC
 
 ** Some more configuration for when all packages has been loaded
@@ -556,6 +592,8 @@ cheatsheets all here.
 #+BEGIN_SRC emacs-lisp
 (require 'diminish)
 (require 'bind-key)
+
+(electric-pair-mode 1)
 #+END_SRC
 
 ** Weird characters I write
@@ -615,6 +653,8 @@ cheatsheets all here.
 (global-set-key (kbd "M-g Y") "Ψ") ; PSI
 (global-set-key (kbd "M-g W") "Ω") ; OMEGA
 (global-set-key (kbd "M-g .") "∘")
+(global-set-key (kbd "M-g *") "⊛")
+
 #+END_SRC
 
 ** Thanks
