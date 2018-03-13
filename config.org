@@ -68,8 +68,8 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute
- 'default nil :family "Operator Mono"
- :height 170)
+ 'default nil :family "PragmataPro"
+ :height 140)
 
 (use-package all-the-icons
   :ensure t)
@@ -381,6 +381,12 @@ cheatsheets all here.
     :commands (org-bullets-mode)
     :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
+  (use-package org-pomodoro
+    :ensure t
+    :commands (org-pomodoro)
+    :config
+      (setq alert-user-configuration (quote ((((:category . "org-pomodoro")) libnotify nil)))))
+
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((dot . t)
@@ -666,7 +672,6 @@ For this configuration I've been inspired by:
 - [fn:3]danielmai
 - [fn:4]jwiegley
 - [fn:5]abo-abo
-
 
 * Footnotes
 
