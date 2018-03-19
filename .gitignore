@@ -12,3 +12,10 @@ ido.last
 .emacs-theme
 .mc-lists.el
 
+.org-id-locations
+bookmarks
+eshell/
+gnus.el
+url/
+var/
+

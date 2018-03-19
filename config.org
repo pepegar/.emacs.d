@@ -37,6 +37,14 @@ cheatsheets all here.
 #+BEGIN_SRC emacs-lisp
 (setq backup-directory-alist `(("." . "~/.backups")))
 #+END_SRC
+
+    Save the custom variables to ~\~/.emacs.d/custom.el~
+
+#+BEGIN_SRC emacs-lisp
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+#+END_SRC
+
 *** ~use-package~
 
    I manage all the packages for my emacs configuration through the
@@ -68,7 +76,7 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute
- 'default nil :family "PragmataPro"
+ 'default nil :family "Operator Mono"
  :height 140)
 
 (use-package all-the-icons
@@ -324,7 +332,7 @@ cheatsheets all here.
     "dotfiles"
     ("c" (find-file "~/.emacs.d/config.org") "config.org")
     ("z" (find-file "~/.zshrc") "zshrc")
-    ("g" (find-file "~/.gnus") "gnus")
+    ("g" (find-file "~/.emacs.d/gnus.org") "gnus")
     ("q" nil "cancel"))
 
   (defhydra gotoline
@@ -397,7 +405,7 @@ cheatsheets all here.
 	org-capture-templates '(("a" "Appointment" entry (file  "~/org/appointments.org" "Appointments") "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n\n")
 				("n" "Note" entry (file+headline "~/org/notes.org" "Notes") "* Note %?\n%T")
 				("l" "Link" entry (file+headline "~/org/links.org" "Links") "* %? %^L %^g \n%T" :prepend t)
-		                ("j" "Journal" entry (file+headline "~/org/journal.org" "Journal") "* %U %?\n %i\n %a")
+		                ("j" "Journal" entry (file+headline "~/org/journal.org" "Journal") "* %U %?\n %i")
 				("P" "Paper" entry (file+headline "~/org/papers.org" "Papers") "* %? %^L %^g \n%T" :prepend t)
 				("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
 				("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))
