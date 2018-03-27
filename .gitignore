@@ -16,6 +16,7 @@ ido.last
 bookmarks
 eshell/
 gnus.el
+custom.el
 url/
 var/
 

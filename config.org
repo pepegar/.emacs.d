@@ -130,12 +130,22 @@ cheatsheets all here.
 
 ** Tools
 
-*** Gnus
-
-    Gnus is for email within emacs.  Its configuration is in ~\~/.gnus~
+*** paredit
 
 #+BEGIN_SRC emacs-lisp
+(use-package paredit
+  :ensure t
+  :config
+  (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook #'paredit-mode)
+  (add-hook 'ielm-mode-hook #'paredit-mode)
+  (add-hook 'lisp-mode-hook #'paredit-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
 #+END_SRC
+
+*** Gnus
+
+    Gnus is for email within emacs.  Its configuration is in ~\~/.emacs.d/gnus.org~
 
 *** Erc
 
@@ -389,12 +399,6 @@ cheatsheets all here.
     :commands (org-bullets-mode)
     :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-  (use-package org-pomodoro
-    :ensure t
-    :commands (org-pomodoro)
-    :config
-      (setq alert-user-configuration (quote ((((:category . "org-pomodoro")) libnotify nil)))))
-
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((dot . t)
@@ -405,7 +409,7 @@ cheatsheets all here.
 	org-capture-templates '(("a" "Appointment" entry (file  "~/org/appointments.org" "Appointments") "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n\n")
 				("n" "Note" entry (file+headline "~/org/notes.org" "Notes") "* Note %?\n%T")
 				("l" "Link" entry (file+headline "~/org/links.org" "Links") "* %? %^L %^g \n%T" :prepend t)
-		                ("j" "Journal" entry (file+headline "~/org/journal.org" "Journal") "* %U %?\n %i")
+                                ("j" "Journal Entry" entry (file+datetree "~/org/journal.org") "* %?" :empty-lines 1)
 				("P" "Paper" entry (file+headline "~/org/papers.org" "Papers") "* %? %^L %^g \n%T" :prepend t)
 				("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
 				("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))
@@ -512,6 +516,47 @@ cheatsheets all here.
   :diminish golden-ratio-mode
   :config (golden-ratio-mode))
 #+END_SRC
+*** Spaceline
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package spaceline
+  :ensure t
+  :config
+  (progn
+  (require 'spaceline-config)
+
+         ;; Spaceline themes: arrow, arrow-fade, bar, box, brace,
+         ;; butt, chamfer, contour, curve,
+         ;; rounded, roundstub, slant, wave, zigzag, nil,
+         (setq powerline-default-separator 'wave)
+
+         (spaceline-toggle-buffer-size-off)
+         (setq powerline-height 21)
+
+         ;; Hide anzu mode, because with spaceline it will desplayed twice
+         (setq anzu-cons-mode-line-p nil)
+
+         ;; HUD: shows the currently visible part of the buffer.
+         (spaceline-toggle-hud-off)
+
+         ;; buffer-position: shows the current position in the buffer
+         ;; as a percentage.
+         (spaceline-toggle-buffer-position-off)
+
+         (spaceline-define-segment my-current-line
+           "The current line number."
+           (if (eq major-mode 'pdf-view-mode)
+               (spaceline--pdfview-page-number)
+             (concat
+              "%l/"
+              (int-to-string (count-lines (point-min) (point-max)))
+              ":%2c")))
+
+         (spaceline-toggle-line-column-off)
+         (spaceline-toggle-buffer-encoding-abbrev-off)
+         (spaceline-spacemacs-theme 'my-current-line)))
+#+END_SRC
 ** Themes
 
    I switch between a big number of themes, sometimes several times a
@@ -520,6 +565,7 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes :pin melpa-stable :ensure t :defer t)
+(use-package spacemacs-theme :pin melpa :ensure t :defer t)
 (use-package idea-darkula-theme :ensure t :defer t)
 (use-package punpun-theme :ensure t :defer t)
 (use-package white-theme :ensure t :defer t)
@@ -559,39 +605,6 @@ cheatsheets all here.
 (use-package groovy-mode :ensure t)
 (use-package yaml-mode :ensure t)
 (use-package json-mode :ensure t)
-(use-package haskell-mode
-  :ensure t
-  :mode "\\.hs\\'"
-  :bind (("C-c C-s" . fix-imports)
-	 ("C-c C-c" . haskell-compile)
-	 ("C-,"     . haskell-move-nested-left)
-	 ("C-."     . haskell-move-nested-right)
-	 ("C-c C-." . haskell-mode-format-imports)
-	 ("s-i"     . haskell-navigate-imports)
-	 ("C-c C-l" . haskell-process-load-or-reload)
-	 ("C-`"     . haskell-interactive-bring)
-	 ("C-c C-t" . haskell-process-do-type)
-	 ("C-c C-i" . haskell-process-do-info)
-	 ("C-c C-c" . haskell-process-cabal-build)
-	 ("C-c C-k" . haskell-interactive-mode-clear))
-  :config
-  (custom-set-variables
-   '(haskell-ask-also-kill-buffers nil)
-   '(haskell-interactive-popup-errors nil)
-   '(haskell-process-auto-import-loaded-modules t)
-   '(haskell-process-log t)
-   '(haskell-process-suggest-remove-import-lines  t)
-   '(haskell-process-type (quote stack-ghci))
-   '(haskell-stylish-on-save t))
-
-
-  (add-hook 'haskell-mode-hook 'haskell-indentation-mode)
-  (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-  (add-hook 'haskell-mode-hook 'flycheck-mode)
-  (add-hook 'haskell-mode-hook 'hindent-mode)
-  (add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
-  (add-hook 'haskell-mode-hook (lambda ()
-  (add-hook 'before-save-hook 'haskell-mode-format-imports nil 'local))))
 
 (use-package markdown-mode
   :ensure t
