@@ -130,6 +130,14 @@ cheatsheets all here.
 
 ** Tools
 
+*** company
+    Company is an autocompletion framework for emacs!
+
+#+BEGIN_SRC emacs-lisp
+(use-package company
+  :ensure t
+  :bind (("M-n" . company-complete)))
+#+END_SRC
 *** paredit
 
 #+BEGIN_SRC emacs-lisp
