@@ -1,0 +1,81 @@
+* GNUS
+
+Gnus is an email & news client inside emacs.
+
+Fist of all, some info about myself:
+
+#+BEGIN_SRC emacs-lisp
+(setq user-mail-address "pepe@pepegar.com"
+      user-full-name "Pepe García")
+#+END_SRC
+
+
+** General adjustments
+Also, let's make gnus display images in the articles:
+
+#+BEGIN_SRC emacs-lisp
+(setq mm-inline-text-html-with-images t)
+(setq mm-text-html-renderer 'shr)
+(setq mm-inline-text-html-with-images t)
+#+END_SRC
+
+And discourage html in email
+
+#+BEGIN_SRC emacs-lisp
+(setq mm-discouraged-alternatives '("text/html" "text/richtext")
+      mm-automatic-display (remove "text/html" mm-automatic-display))
+#+END_SRC
+
+** Select methods
+
+Since I get my email & news from different sources, let's have all
+them as secondary methods:
+
+#+BEGIN_SRC emacs-lisp
+(setq gnus-select-method '(nnnil))
+
+(setq gnus-secondary-select-methods '(
+  (nntp "news.gmane.org")
+
+  (nnimap "fastmail"
+    (nnimap-stream plain)
+    (nnimap-address "localhost")
+    (nnimap-authenticator login)
+    (nnimap-user "pepe@pepegar.com")
+    (nnimap-split-methods 'nnmail-split-fancy)
+    (nnimap-split-fancy
+      (|
+        (from ".*@linkedin.com.*" "fastmail/social")
+        (from ".*@e.linkedin.com.*" "fastmail/social")
+        (from ".*info@meetup.com.*" "fastmail/social")
+        (from ".*@meetup.com.*" "fastmail/social")
+        (from ".*@tripit.com.*" "fastmail/social")
+        (from ".*@twitter.com.*" "fastmail/social")
+        "fastmail/INBOX")))
+
+  (nnimap "fidesmo"
+    (nnimap-stream plain)
+    (nnimap-address "localhost")
+    (nnimap-authenticator login)
+    (nnimap-user "pepe.garcia@fidesmo.com"))))
+#+END_SRC
+
+
+** sending email
+
+#+BEGIN_SRC emacs-lisp
+(setq message-sendmail-f-is-evil 't)
+(setq message-sendmail-extra-arguments '("--read-envelope-from"))
+(setq message-send-mail-function 'message-send-mail-with-sendmail)
+(setq sendmail-program "/usr/local/bin/msmtp")
+#+END_SRC
+
+** Identities
+
+   These are the identities I'll use within Gnus.
+
+#+BEGIN_SRC emacs-lisp
+(setq gnus-alias-identity-alist '(("gmail" "\"Pepe García\" <jl.garhdez@gmail.com>" "" nil "Pepe García")
+                                  ("fastmail" "\"Pepe García\" <pepe@pepegar.com>" "" nil "Pepe García")
+                                  ("fidesmo" "\"Pepe García\" <pepe.garcia@fidesmo.com>" "" nil "Pepe García")))
+#+END_SRC

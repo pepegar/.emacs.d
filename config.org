@@ -28,6 +28,8 @@ cheatsheets all here.
 #+BEGIN_SRC emacs-lisp
 (setq exec-path (append exec-path '("/usr/local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
+(setq exec-path (append exec-path '("/Users/pepe/.nix-profile/bin")))
+(setq exec-path (append exec-path '("/nix/var/nix/profiles/default/bin/")))
 #+END_SRC
 
 *** plumbing
@@ -76,8 +78,8 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute
- 'default nil :family "Operator Mono"
- :height 140)
+ 'default nil :family "PragmataPro"
+ :height 150)
 
 (use-package all-the-icons
   :ensure t)
@@ -234,18 +236,6 @@ cheatsheets all here.
 (use-package diminish
   :ensure t
   :pin melpa-stable)
-#+END_SRC
-
-*** Etags
-
-    Etags is for browsing the code using ctags TAGS files.
-
-#+BEGIN_SRC emacs-lisp
-(use-package etags
-  :ensure t
-  :config
-  (use-package etags-select :ensure t)
-  (use-package etags-table :ensure t))
 #+END_SRC
 
 *** Flycheck
@@ -720,8 +710,7 @@ Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode
     "useful ensime things"
     ("c" ensime-sbt-do-compile "compile")
     ("s" ensime-sbt "sbt")
-    ("t" ensime-sbt-do-test "test")
-))
+    ("t" ensime-sbt-do-test "test")))
 
 (use-package scala-mode
   :ensure t
@@ -729,13 +718,24 @@ Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode
   :config
   (use-package sbt-mode
     :ensure t
-    :config (setq sbt:program-name "/Users/pepe/bin/sbt")))
+    :config (setq sbt:program-name "/usr/local/bin/sbtx")))
 #+END_SRC
 
 *** others
 
 #+BEGIN_SRC emacs-lisp
-(use-package haskell-mode :ensure t)
+(use-package lsp-mode
+  :ensure t)
+
+(use-package haskell-mode
+  :ensure t
+  :config
+  (use-package intero
+    :ensure t
+    :config
+     (add-hook 'haskell-mode-hook 'intero-mode)))
+
+
 (use-package idris-mode :ensure t)
 (use-package nix-mode :ensure t)
 (use-package groovy-mode :ensure t)
