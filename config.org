@@ -174,13 +174,7 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :ensure t
-  :config
-
-  (use-package magit-gh-pulls
-    :ensure t
-    :init
-    (add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls)))
+  :ensure t)
 #+END_SRC
 
     There are several tricks I like to do with Magit.
@@ -514,47 +508,7 @@ cheatsheets all here.
   :diminish golden-ratio-mode
   :config (golden-ratio-mode))
 #+END_SRC
-*** Spaceline
 
-
-#+BEGIN_SRC emacs-lisp
-(use-package spaceline
-  :ensure t
-  :config
-  (progn
-  (require 'spaceline-config)
-
-         ;; Spaceline themes: arrow, arrow-fade, bar, box, brace,
-         ;; butt, chamfer, contour, curve,
-         ;; rounded, roundstub, slant, wave, zigzag, nil,
-         (setq powerline-default-separator 'wave)
-
-         (spaceline-toggle-buffer-size-off)
-         (setq powerline-height 21)
-
-         ;; Hide anzu mode, because with spaceline it will desplayed twice
-         (setq anzu-cons-mode-line-p nil)
-
-         ;; HUD: shows the currently visible part of the buffer.
-         (spaceline-toggle-hud-off)
-
-         ;; buffer-position: shows the current position in the buffer
-         ;; as a percentage.
-         (spaceline-toggle-buffer-position-off)
-
-         (spaceline-define-segment my-current-line
-           "The current line number."
-           (if (eq major-mode 'pdf-view-mode)
-               (spaceline--pdfview-page-number)
-             (concat
-              "%l/"
-              (int-to-string (count-lines (point-min) (point-max)))
-              ":%2c")))
-
-         (spaceline-toggle-line-column-off)
-         (spaceline-toggle-buffer-encoding-abbrev-off)
-         (spaceline-spacemacs-theme 'my-current-line)))
-#+END_SRC
 ** Themes
 
    I switch between a big number of themes, sometimes several times a
@@ -662,7 +616,6 @@ Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode
 | ~C-c C-b t~                | Run the current module/suite tests                   |
 | ~C-c C-b q~                | Run "quick" tests (tests impacted by recent changes) |
 | ~C-c C-b o~                | Run only the current test                            |
-
 
 **** Debugger
 
