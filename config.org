@@ -25,11 +25,18 @@ cheatsheets all here.
 
 *** Help emacs find my executables
 
+
 #+BEGIN_SRC emacs-lisp
 (setq exec-path (append exec-path '("/usr/local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.nix-profile/bin")))
 (setq exec-path (append exec-path '("/nix/var/nix/profiles/default/bin/")))
+#+END_SRC
+
+*** OSX command as meta
+
+#+BEGIN_SRC emacs-lisp
+(setq mac-command-modifier 'meta)
 #+END_SRC
 
 *** plumbing
@@ -78,7 +85,7 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute
- 'default nil :family "PragmataPro"
+ 'default nil :family "Operator Mono"
  :height 150)
 
 (use-package all-the-icons
