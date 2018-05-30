@@ -138,6 +138,13 @@ cheatsheets all here.
 #+END_SRC
 
 ** Tools
+*** move-text
+
+#+BEGIN_SRC emacs-lisp
+(use-package move-text
+  :ensure t
+  :config (move-text-default-bindings))
+#+END_SRC
 
 *** company
     Company is an autocompletion framework for emacs!
