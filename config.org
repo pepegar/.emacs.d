@@ -140,6 +140,10 @@ cheatsheets all here.
 ** Tools
 *** move-text
 
+    Move text is for... moving text around :D
+
+    Current keybindings i'm using are ~M-<UP>~ and ~M-<DOWN>~.
+
 #+BEGIN_SRC emacs-lisp
 (use-package move-text
   :ensure t
