@@ -27,6 +27,7 @@ cheatsheets all here.
 
 
 #+BEGIN_SRC emacs-lisp
+(setq exec-path (append exec-path '("/usr/bin")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.nix-profile/bin")))
@@ -85,8 +86,8 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute
- 'default nil :family "Operator Mono"
- :height 150)
+ 'default nil :family "Monoid"
+ :height 120)
 
 (use-package all-the-icons
   :ensure t)
@@ -94,7 +95,18 @@ cheatsheets all here.
 (use-package all-the-icons-dired
   :ensure t
   :init (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+
+
+(global-prettify-symbols-mode 1)
+
+(setq prettify-symbols-alist
+      '(
+        ("lambda" . 955) ; λ
+        ("->" . 8594)    ; →
+        ("=>" . 8658)    ; ⇒
+        ))
 #+END_SRC
+
 
 *** maintaining selected theme between sessions
 
@@ -137,6 +149,11 @@ cheatsheets all here.
                     my-saved-theme-filename))))
 #+END_SRC
 
+*** Font locking
+
+#+BEGIN_SRC emacs-lisp
+(global-font-lock-mode 1)
+#+END_SRC
 ** Tools
 *** move-text
 
@@ -404,6 +421,44 @@ cheatsheets all here.
 	 ("C-c c" . counsel-org-capture))
   :config
 
+  (unless (boundp 'org-export-latex-classes)
+    (setq org-export-latex-classes nil))
+  (add-to-list 'org-export-latex-classes
+    ;; beamer class, for presentations
+    '("beamer"
+       "\\documentclass[11pt]{beamer}\n
+        \\mode<{{{beamermode}}}>\n
+        \\usetheme{{{{beamertheme}}}}\n
+        \\usecolortheme{{{{beamercolortheme}}}}\n
+        \\beamertemplateballitem\n
+        \\setbeameroption{show notes}
+        \\usepackage[utf8]{inputenc}\n
+        \\usepackage[T1]{fontenc}\n
+        \\usepackage{hyperref}\n
+        \\usepackage{color}
+        \\usepackage{listings}
+        \\lstset{numbers=none,language=[ISO]C++,tabsize=4,
+    frame=single,
+    basicstyle=\\small,
+    showspaces=false,showstringspaces=false,
+    showtabs=false,
+    keywordstyle=\\color{blue}\\bfseries,
+    commentstyle=\\color{red},
+    }\n
+        \\usepackage{verbatim}\n
+        \\institute{{{{beamerinstitute}}}}\n          
+         \\subject{{{{beamersubject}}}}\n"
+  
+       ("\\section{%s}" . "\\section*{%s}")
+       
+       ("\\begin{frame}[fragile]\\frametitle{%s}"
+         "\\end{frame}"
+         "\\begin{frame}[fragile]\\frametitle{%s}"
+         "\\end{frame}")))
+
+  (use-package ob-restclient
+    :ensure t)
+
   (use-package org-bullets
     :ensure t
     :commands (org-bullets-mode)
@@ -413,7 +468,8 @@ cheatsheets all here.
    'org-babel-load-languages
    '((dot . t)
      (mscgen . t)
-     (python . t)))
+     (python . t)
+     (restclient . t)))
   (setq org-agenda-files '("~/org/")
 	org-default-notes-file (concat org-directory "/notes.org")
 	org-capture-templates '(("a" "Appointment" entry (file  "~/org/appointments.org" "Appointments") "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n\n")
@@ -534,6 +590,7 @@ cheatsheets all here.
    the following:
 
 #+BEGIN_SRC emacs-lisp
+(use-package xresources-theme :pin melpa :ensure t :defer t)
 (use-package doom-themes :pin melpa-stable :ensure t :defer t)
 (use-package spacemacs-theme :pin melpa :ensure t :defer t)
 (use-package idea-darkula-theme :ensure t :defer t)
@@ -673,23 +730,36 @@ Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode
 
 
 #+BEGIN_SRC emacs-lisp
-(use-package ensime
-  :ensure t
-  :pin melpa-stable
-  :config
-  (defhydra ensime-hydra (:color blue)
-    "useful ensime things"
-    ("c" ensime-sbt-do-compile "compile")
-    ("s" ensime-sbt "sbt")
-    ("t" ensime-sbt-do-test "test")))
-
 (use-package scala-mode
   :ensure t
-  :interpreter ("scala" . scala-mode)
+  :interpreter
+  ("scala" . scala-mode))
+(use-package sbt-mode
+  :ensure t
+  :commands sbt-start sbt-command
   :config
-  (use-package sbt-mode
-    :ensure t
-    :config (setq sbt:program-name "/usr/local/bin/sbtx")))
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map))
+
+;; Enable nice rendering of diagnostics like compile errors.
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+(use-package lsp-ui :ensure t :pin melpa-stable)
+(require 'lsp-ui)
+
+(use-package lsp-mode :ensure t)
+(add-hook 'lsp-mode-hook 'lsp-ui-mode )
+(require 'lsp-mode)
+(require 'sbt-mode)
+
+(add-to-list 'load-path "~/path/to/lsp-scala")
+(require 'lsp-scala)
+(add-hook 'scala-mode-hook #'lsp-scala-enable)
 #+END_SRC
 
 *** others
@@ -713,10 +783,14 @@ Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode
 (use-package yaml-mode :ensure t)
 (use-package json-mode :ensure t)
 
+
 (use-package markdown-mode
   :ensure t
-  :mode "\\.md\\'"
-  :config
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown")
 
   (use-package markdown-toc
     :ensure t))

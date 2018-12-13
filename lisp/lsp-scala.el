@@ -1,4 +1,4 @@
-;;; lsp-scala.el --- Scala support for lsp-mode
+;;; lsp-scala.el --- Scala support for lsp-mode  -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018 Ross A. Baker <ross@rossabaker.com>
 
@@ -8,43 +8,61 @@
 ;; Keywords: scala, lsp, metals
 ;; URL: https://github.com/rossabaker/lsp-scala
 
+;;; Commentary
+
+;; This package defines an lsp-mode client for Scala.
+
+;;; Code:
+
 (require 'lsp-mode)
 (require 'sbt-mode)
 
 ;;;###autoload
-(defcustom lsp-scala-server-command '("metals")
-  "The command to launch the language server"
+(defcustom lsp-scala-server-command '("metals-emacs")
+  "The command to launch the language server,"
   :group 'lsp-scala
   :type 'list)
 
 (defcustom lsp-scala-workspace-root default-directory
-  "The root directory of the workspace"
+  "The root directory of the workspace,"
   :group 'lsp-scala
   :type 'directory)
 
-(defvar lsp-scala--config-options `(:hover (:enabled t)
-                                    :highlight (:enabled t)
-                                    :scalac (:completions (:enabled t)
-                                             :diagnostics (:enabled t))))
+(defvar lsp-scala--config-options `())
 
 (defun lsp-scala--set-configuration ()
-  ;; TODO is this going to irritate everything but metals?
+  "Set the configuration for the Scala LSP server."
   (lsp--set-configuration `(:metals ,lsp-scala--config-options)))
 
 (add-hook 'lsp-after-initialize-hook 'lsp-scala--set-configuration)
 
+(defun lsp-scala-build-import ()
+  "Unconditionally run `sbt bloopInstall` and re-connect to the build server."
+  (interactive)
+  (lsp-send-execute-command "build-import" ())
+  )
+
+(defun lsp-scala-build-connect ()
+  "Unconditionally cancel existing build server connection and re-connect."
+  (interactive)
+  (lsp-send-execute-command "build-connect" ())
+  )
+
+(defun lsp-scala-doctor-run ()
+  "Open the Metals doctor to troubleshoot potential build problems."
+  (interactive)
+  (lsp-send-execute-command "doctor-run" ())
+  )
+
+(defun lsp-scala-sources-scan ()
+  "Walk all files in the workspace and index where symbols are defined."
+  (interactive)
+  (lsp-send-execute-command "source-scan" ())
+  )
+
 (lsp-define-stdio-client lsp-scala "scala"
                          (lambda () (sbt:find-root))
                          lsp-scala-server-command)
-
-(defun lsp-scala--run-from-root (orig &rest args)
-  (let* ((client (car args))
-         (lang-id (funcall (lsp--client-language-id client) (current-buffer))))
-    (if (equal "scala" lang-id)
-        (let ((default-directory (file-truename (funcall (lsp--client-get-root client)))))
-          (apply orig args))
-      (apply orig args))))
-(advice-add 'lsp--start :around #'lsp-scala--run-from-root)
 
 (provide 'lsp-scala)
 ;;; lsp-scala.el ends here
