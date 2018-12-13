@@ -299,26 +299,27 @@ cheatsheets all here.
       (setq ivy-use-virtual-buffers t
             ivy-count-format "%d/%d "
             ivy-re-builders-alist '((swiper . ivy--regex-plus)
-                                    (t      . ivy--regex-fuzzy)))
+                                    (t      . ivy--regex-fuzzy))))
+(use-package flx
+  :ensure t)
 
-  (use-package flx
-    :ensure t)
+(use-package counsel
+  :ensure t
+  :bind (("C-c a g" . counsel-projectile-ag)
+         ("M-x"     . counsel-M-x)
+         ([f9]      . counsel-load-theme)))
 
-  (use-package counsel
-    :ensure t
-    :bind (("C-c a g" . counsel-projectile-ag)
-           ("M-x"     . counsel-M-x)
-           ("C-x C-f" . counsel-find-file)
-           ("C-c p h" . counsel-projectile)
-           ([f9]      . counsel-load-theme)))
+(use-package counsel-projectile
+  :ensure t
+  :bind (("C-x C-f" . counsel-find-file)
+         ("C-c p h" . counsel-projectile)
+         ("C-c p v" . projectile-vc)
+         ("C-c p p" . counsel-projectile-switch-project)))
 
-  (use-package counsel-projectile
-    :ensure t)
-
-  (use-package swiper
-    :ensure t
-    :bind (("C-s" . swiper)
-           ("C-;" . swiper-avy))))
+(use-package swiper
+  :ensure t
+  :bind (("C-s" . swiper)
+         ("C-;" . swiper-avy)))
 #+END_SRC
 
 *** ace-window
@@ -749,15 +750,13 @@ Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode))
-(use-package lsp-ui :ensure t :pin melpa-stable)
+(use-package lsp-ui :ensure t)
 (require 'lsp-ui)
 
 (use-package lsp-mode :ensure t)
 (add-hook 'lsp-mode-hook 'lsp-ui-mode )
 (require 'lsp-mode)
 (require 'sbt-mode)
-
-(add-to-list 'load-path "~/path/to/lsp-scala")
 (require 'lsp-scala)
 (add-hook 'scala-mode-hook #'lsp-scala-enable)
 #+END_SRC
