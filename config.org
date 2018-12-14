@@ -750,10 +750,10 @@ Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode))
-(use-package lsp-ui :ensure t)
+(use-package lsp-ui :ensure t :pin melpa-stable)
 (require 'lsp-ui)
 
-(use-package lsp-mode :ensure t)
+(use-package lsp-mode :ensure t :pin melpa-stable)
 (add-hook 'lsp-mode-hook 'lsp-ui-mode )
 (require 'lsp-mode)
 (require 'sbt-mode)
