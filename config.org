@@ -17,12 +17,6 @@ cheatsheets all here.
       user-mail-address "jl.garhdez@gmail.com")
 #+END_SRC
 
-*** load ~/.emacs.d/lisp
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-#+END_SRC
-
 *** Help emacs find my executables
 
 
@@ -32,12 +26,6 @@ cheatsheets all here.
 (setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.nix-profile/bin")))
 (setq exec-path (append exec-path '("/nix/var/nix/profiles/default/bin/")))
-#+END_SRC
-
-*** OSX command as meta
-
-#+BEGIN_SRC emacs-lisp
-(setq mac-command-modifier 'meta)
 #+END_SRC
 
 *** plumbing
@@ -78,6 +66,8 @@ cheatsheets all here.
   (require 'use-package))
 
 (require 'bind-key)
+
+(setq use-package-always-ensure t)
 #+END_SRC
 
 *** Appearance
@@ -86,27 +76,17 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute
- 'default nil :family "Monoid"
- :height 120)
+ 'default nil :family "PragmataPro Mono Liga"
+ :height 150)
 
-(use-package all-the-icons
-  :ensure t)
+(use-package all-the-icons)
 
 (use-package all-the-icons-dired
-  :ensure t
-  :init (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
+  :hook (dired-mode-hook . all-the-icons-dired-mode))
 
-
-(global-prettify-symbols-mode 1)
-
-(setq prettify-symbols-alist
-      '(
-        ("lambda" . 955) ; λ
-        ("->" . 8594)    ; →
-        ("=>" . 8658)    ; ⇒
-        ))
+(use-package pragmatapro
+  :load-path "~/.emacs.d/lisp")
 #+END_SRC
-
 
 *** maintaining selected theme between sessions
 
@@ -163,7 +143,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package move-text
-  :ensure t
   :config (move-text-default-bindings))
 #+END_SRC
 
@@ -172,14 +151,12 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package company
-  :ensure t
   :bind (("M-n" . company-complete)))
 #+END_SRC
 *** paredit
 
 #+BEGIN_SRC emacs-lisp
 (use-package paredit
-  :ensure t
   :config
   (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
   (add-hook 'lisp-interaction-mode-hook #'paredit-mode)
@@ -198,7 +175,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package erc
-  :ensure t
   :config
     (setq erc-modules '(autojoin notifications)))
 #+END_SRC
@@ -208,8 +184,7 @@ cheatsheets all here.
     Magit is a better way to use git, from within emacs, of course.
 
 #+BEGIN_SRC emacs-lisp
-(use-package magit
-  :ensure t)
+(use-package magit)
 #+END_SRC
 
     There are several tricks I like to do with Magit.
@@ -226,29 +201,20 @@ cheatsheets all here.
      making a spinoff of master, with the last commits.  This is so
      convenient :)
 
-**** managing/creating pull requests
+**** Magit forges
 
-     For creating pull requests, I use the ~magit-gh-pulls~ package,
-     that connects to the github API via HTTP and allows me to create,
-     list, and see the Pull Requests for the repo.
+     Let's try magit forge...
 
-     Normally I need to edit the ~.git/config~ file and add the remote
-     github repo:
-
-#+BEGIN_SRC
-[magit]
-        gh-pulls-repo = pepegar/$repo
+#+BEGIN_SRC emacs-lisp
+(use-package forge)
 #+END_SRC
 
-     After that's set, I can just ~# g~ to refresh the latest pull
-     requests, ~# o~ on a pr of the list to open in firefox, or ~# c~
-     to create a new PR from the existing changes.
+     It returns an error while trying to get notifications...
 
 *** Projectile
 
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
-  :ensure t
   :config
   (projectile-global-mode)
   (setq projectile-mode-line
@@ -263,7 +229,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package diminish
-  :ensure t
   :pin melpa-stable)
 #+END_SRC
 
@@ -274,7 +239,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :ensure t
   :pin melpa-stable)
 #+END_SRC
 
@@ -292,32 +256,28 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
-  :ensure t
   :diminish ivy-mode
   :bind (("C-x C-b" . ivy-switch-buffer))
   :config
       (setq ivy-use-virtual-buffers t
             ivy-count-format "%d/%d "
-            ivy-re-builders-alist '((swiper . ivy--regex-plus)
-                                    (t      . ivy--regex-fuzzy))))
-(use-package flx
-  :ensure t)
+            ;;ivy-re-builders-alist '((swiper . ivy--regex-plus)
+            ;;                        (t      . ivy--regex-fuzzy))
+))
+(use-package flx)
 
 (use-package counsel
-  :ensure t
-  :bind (("C-c a g" . counsel-projectile-ag)
-         ("M-x"     . counsel-M-x)
+  :bind (("M-x"     . counsel-M-x)
          ([f9]      . counsel-load-theme)))
 
 (use-package counsel-projectile
-  :ensure t
-  :bind (("C-x C-f" . counsel-find-file)
+  :bind (("C-c a g" . counsel-ag)
+         ("C-x C-f" . counsel-find-file)
          ("C-c p h" . counsel-projectile)
          ("C-c p v" . projectile-vc)
          ("C-c p p" . counsel-projectile-switch-project)))
 
 (use-package swiper
-  :ensure t
   :bind (("C-s" . swiper)
          ("C-;" . swiper-avy)))
 #+END_SRC
@@ -328,7 +288,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package ace-window
-  :ensure t
   :bind (("M-o" . ace-window)))
 #+END_SRC
 
@@ -340,7 +299,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package hydra
-  :ensure t
   :bind (("C-x t" . toggle/body)
 	 ("C-x j" . gotoline/body)
 	 ("C-x c" . orghydra/body)
@@ -406,7 +364,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package restclient
-  :ensure t
   :mode (("\\.http\\'" . restclient-mode)))
 #+END_SRC
 
@@ -417,7 +374,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package org
-  :ensure t
   :bind (("C-c a a" . org-agenda)
 	 ("C-c c" . counsel-org-capture))
   :config
@@ -457,11 +413,9 @@ cheatsheets all here.
          "\\begin{frame}[fragile]\\frametitle{%s}"
          "\\end{frame}")))
 
-  (use-package ob-restclient
-    :ensure t)
+  (use-package ob-restclient)
 
   (use-package org-bullets
-    :ensure t
     :commands (org-bullets-mode)
     :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
@@ -487,7 +441,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package multiple-cursors
-  :ensure t
   :bind (("C-* l" . mc/edit-lines)
 	 ("C->" . mc/mark-next-like-this)
 	 ("C-<" . mc/mark-previous-like-this)
@@ -503,7 +456,6 @@ cheatsheets all here.
   (require 'mc-extras))
 
 (use-package mc-extras
-  :ensure t
   :commands (mc/compare-chars mc/compare-chars-backward mc/compare-chars-forward
             mc/cua-rectangle-to-multiple-cursors
             mc/remove-current-cursor mc/remove-duplicated-cursors)
@@ -559,7 +511,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region
-  :ensure t
   :bind ("C-@" . er/expand-region))
 #+END_SRC
 
@@ -569,8 +520,7 @@ cheatsheets all here.
     There are some useful pictures of how it works in [[https://github.com/abo-abo/avy][the repo]].
 
 #+BEGIN_SRC emacs-lisp
-(use-package avy
-  :ensure t)
+(use-package avy)
 #+END_SRC
 
 *** Golden ratio
@@ -579,8 +529,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package golden-ratio
-  :ensure t
-  :diminish golden-ratio-mode
   :config (golden-ratio-mode))
 #+END_SRC
 
@@ -623,120 +571,12 @@ cheatsheets all here.
 
 *** Scala
 
-    The following cheatsheet is copied from [[https://github.com/ensime/ensime.github.io/blob/master/editors/emacs/cheat_sheet.md][Ensime's cheatsheet for
-    emacs]], for having a local copy, basically :D
-
-**** Source
-
-| Shortcut                   | Description                                                                        |
-|----------------------------+------------------------------------------------------------------------------------|
-| ~C-c C-v f~                | Format the current source file                                                     |
-| ~C-c C-v t~ or hover mouse | Show the type of the symbol under the cursor                                       |
-| ~C-c C-v T~                | Show the fully qualified type of the symbol under the cursor                       |
-| ~C-u C-c C-v t~            | (universal argument adds to the kill ring)                                         |
-| ~C-c C-v e~ or hover mouse | Show compile warnings under the cursor ; show implicit conversions when applicable |
-
-**** Presentation Compiler
-
-| Shortcut    | Description                                          |
-|-------------+------------------------------------------------------|
-| ~C-c C-c c~ | Re-typecheck the current file                        |
-| ~C-c C-c r~ | Restart the presentation compiler for all open files |
-
-**** Refactoring
-
-| Shortcut    | Description                             |
-|-------------+-----------------------------------------|
-| ~C-c C-r a~ | Add type to the symbol under the cursor |
-| ~C-c C-r o~ | Organize imports in the current file    |
-| ~C-c C-r t~ | Import the type under the cursor        |
-| ~C-c C-r r~ | Rename the symbol under the cursor      |
-| ~C-c C-r l~ | Extract the region into a local value   |
-| ~C-c C-r m~ | Extract the region into a method        |
-| ~C-c C-r i~ | Inline the local value under the cursor |
-
-**** Navigation
-
-| Shortcut                      | Description                                                                                                               |
-|-------------------------------+---------------------------------------------------------------------------------------------------------------------------|
-| ~M-.~ or ~Control+Left-Click~ | Jump to the definition of the symbol under the cursor                                                                     |
-| ~C-u M-.~                     | Jump to the definition of the type of the symbol under the cursor                                                         |
-| ~C-c C-v r~                   | Find usage of symbol at point                                                                                             |
-| ~C-c C-v h~                   | Find implementations of type at point                                                                                     |
-| ~M-,~                         | Pop back to the previously visited position                                                                               |
-| ~C-c C-v .~                   | Select the surrounding syntactic context. Subsequent taps of '.' and ',' will grow and shrink the selection, respectively |
-| ~C-c C-v v~                   | Search globally for methods or types                                                                                      |
-
-**** Documentation
-
-| Shortcut    | Description                                             |
-|-------------+---------------------------------------------------------|
-| ~C-c C-v d~ | Browse the documentation of the symbol under the cursor |
-
-**** sbt
-
-Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode), so don't forget that you also have commands provided as-is by that package.
-
-
-| Shortcut                   | Description                                          |
-|----------------------------+------------------------------------------------------|
-| ~C-c C-b s~ or ~C-c C-v s~ | Start a sbt process, or switch to an existing one    |
-| ~C-c C-b S~                | Switch to buffer containing the stack trace parser   |
-| ~C-c C-b c~                | Compile                                              |
-| ~C-c C-b C~                | Compile just this file                               |
-| ~C-u C-c C-b C~            | Compile just this file and print its AST             |
-| ~C-c C-b n~                | Clean                                                |
-| ~C-c C-b p~                | Package                                              |
-| ~C-c C-b r~                | Run                                                  |
-| ~C-c C-b T~                | Run all tests                                        |
-| ~C-c C-b t~                | Run the current module/suite tests                   |
-| ~C-c C-b q~                | Run "quick" tests (tests impacted by recent changes) |
-| ~C-c C-b o~                | Run only the current test                            |
-
-**** Debugger
-
-| Shortcut    | Description                                      |
-|-------------+--------------------------------------------------|
-| ~C-c C-d d~ | Start the debugger                               |
-| ~C-c C-d b~ | Set a breakpoint at the current line             |
-| ~C-c C-d u~ | Remove the breakpoint at the current line        |
-| ~C-c C-d a~ | Remove all breakpoints                           |
-| ~C-c C-d r~ | Start debugging the current program              |
-| ~C-c C-d s~ | Step into method invocations                     |
-| ~C-c C-d o~ | Step out of method invocations                   |
-| ~C-c C-d n~ | Step to the next line                            |
-| ~C-c C-d c~ | Continue the program execution                   |
-| ~C-c C-d q~ | Stop debugging the current program               |
-| ~C-c C-d t~ | Show the current backtrace                       |
-| ~C-c C-d i~ | Inspect the value of the symbol under the cursor |
-
-**** REPL
-
-| Shortcut      | Description                               |
-|---------------+-------------------------------------------|
-| ~C-c C-v z~   | Start the Scala REPL or switch to it      |
-| ~C-c C-v C-r~ | Send the region to the REPL               |
-| ~C-c C-v b~   | Evaluate the current buffer in the REPL   |
-| ~C-c C-v l~   | Prompt for a file and load it in the REPL |
-
-**** Miscellaneous
-
-| Shortcut              | Description                                       |
-|-----------------------+---------------------------------------------------|
-| ~C-c C-b S~           | Create a "stacktrace" buffer or switch to it      |
-| ~M-x ensime-shutdown~ | Shut down ENSIME                                  |
-| ~M-x ensime-reload~   | Reload the .ensime file and recompile the project |
-
-
-
-
 #+BEGIN_SRC emacs-lisp
+;; Enable scala-mode and sbt-mode
 (use-package scala-mode
-  :ensure t
-  :interpreter
-  ("scala" . scala-mode))
+  :mode "\\.s\\(cala\\|bt\\)$")
+
 (use-package sbt-mode
-  :ensure t
   :commands sbt-start sbt-command
   :config
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
@@ -748,51 +588,45 @@ Much of this is a wrapper over [~sbt-mode~](https://github.com/hvesalai/sbt-mode
 
 ;; Enable nice rendering of diagnostics like compile errors.
 (use-package flycheck
-  :ensure t
   :init (global-flycheck-mode))
-(use-package lsp-ui :ensure t :pin melpa-stable)
-(require 'lsp-ui)
 
-(use-package lsp-mode :ensure t :pin melpa-stable)
-(add-hook 'lsp-mode-hook 'lsp-ui-mode )
-(require 'lsp-mode)
-(require 'sbt-mode)
-(require 'lsp-scala)
-(add-hook 'scala-mode-hook #'lsp-scala-enable)
+(use-package lsp-mode
+  :pin melpa-stable)
+
+(use-package lsp-ui
+  :pin melpa-stable
+  :hook (lsp-mode . lsp-ui-mode))
+
+(use-package lsp-scala
+  :load-path "~/.emacs.d/lisp"
+  :hook (scala-mode . lsp-scala-enable))
 #+END_SRC
 
 *** others
 
 #+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
-  :ensure t)
-
 (use-package haskell-mode
-  :ensure t
   :config
   (use-package intero
-    :ensure t
     :config
      (add-hook 'haskell-mode-hook 'intero-mode)))
 
 
-(use-package idris-mode :ensure t)
-(use-package nix-mode :ensure t)
-(use-package groovy-mode :ensure t)
-(use-package yaml-mode :ensure t)
-(use-package json-mode :ensure t)
+(use-package idris-mode)
+(use-package nix-mode)
+(use-package groovy-mode)
+(use-package yaml-mode)
+(use-package json-mode)
 
 
 (use-package markdown-mode
-  :ensure t
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown")
 
-  (use-package markdown-toc
-    :ensure t))
+  (use-package markdown-toc))
 #+END_SRC
 
 ** Some more configuration for when all packages has been loaded

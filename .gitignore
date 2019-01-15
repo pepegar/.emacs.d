@@ -21,3 +21,6 @@ url/
 var/
 
 network-security.data
+.#recentf
+elpa.zip
+forge-database.sqlite
