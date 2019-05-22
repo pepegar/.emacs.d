@@ -50,6 +50,7 @@
             ("[TRACE]"   #XE387)
             ("[FIXME]"   #XE388)
             ("[TODO]"    #XE389)
+            ("TODO"      #XE389)
             ("[BUG]"     #XE38A)
             ("[NOTE]"    #XE38B)
             ("[HACK]"    #XE38C)

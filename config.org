@@ -67,7 +67,8 @@ cheatsheets all here.
 
 (require 'bind-key)
 
-(setq use-package-always-ensure t)
+(setq use-package-always-defer t
+      use-package-always-ensure t)
 #+END_SRC
 
 *** Appearance
@@ -86,6 +87,30 @@ cheatsheets all here.
 
 (use-package pragmatapro
   :load-path "~/.emacs.d/lisp")
+
+(use-package page-break-lines
+  :pin melpa-stable
+ )
+
+(use-package dashboard
+  :pin melpa-stable
+  :demand
+  :if (< (length command-line-args) 2)
+  :config
+  (defun dashboard-load-packages (list-size)
+    (insert (make-string (ceiling (max 0 (- dashboard-banner-length 38)) 2) ? )
+            (format "[%d packages loaded in %s]" (length package-activated-list) (emacs-init-time))))
+
+  (add-to-list 'dashboard-item-generators '(packages . dashboard-load-packages))
+
+  (setq dashboard-items '((packages)
+                          (projects . 5)
+                          (recents . 5)
+                          (agenda))
+        dashboard-startup-banner 'logo)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (dashboard-setup-startup-hook))
 #+END_SRC
 
 *** maintaining selected theme between sessions
@@ -239,7 +264,8 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :pin melpa-stable)
+  :pin melpa-stable
+  :commands global-flycheck-mode)
 #+END_SRC
 
 *** Ivy, counsel, swiper
@@ -261,25 +287,27 @@ cheatsheets all here.
   :config
       (setq ivy-use-virtual-buffers t
             ivy-count-format "%d/%d "
-            ;;ivy-re-builders-alist '((swiper . ivy--regex-plus)
-            ;;                        (t      . ivy--regex-fuzzy))
-))
+            ivy-re-builders-alist '((swiper . ivy--regex-plus))))
+
 (use-package flx)
 
 (use-package counsel
   :bind (("M-x"     . counsel-M-x)
-         ([f9]      . counsel-load-theme)))
+         ([f9]      . counsel-load-theme))
+  :config
+    (setq ivy-initial-inputs-alist nil))
 
 (use-package counsel-projectile
   :bind (("C-c a g" . counsel-ag)
          ("C-x C-f" . counsel-find-file)
          ("C-c p h" . counsel-projectile)
+         ("C-c p r" . projectile-replace)
          ("C-c p v" . projectile-vc)
          ("C-c p p" . counsel-projectile-switch-project)))
 
 (use-package swiper
   :bind (("C-s" . swiper)
-         ("C-;" . swiper-avy)))
+         ("M-l" . swiper-avy)))
 #+END_SRC
 
 *** ace-window
@@ -289,6 +317,16 @@ cheatsheets all here.
 #+BEGIN_SRC emacs-lisp
 (use-package ace-window
   :bind (("M-o" . ace-window)))
+#+END_SRC
+
+
+*** posframe
+
+    posframe is a package for showing a small child frame within the
+    current frame.  Currently only used by hydra
+
+#+BEGIN_SRC emacs-lisp
+(use-package posframe)
 #+END_SRC
 
 *** Hydra
@@ -304,7 +342,6 @@ cheatsheets all here.
 	 ("C-x c" . orghydra/body)
 	 ("C-x p" . dotfiles/body))
   :config
-
   (defhydra toggle (:color blue)
     "toggle"
     ("a" abbrev-mode "abbrev")
@@ -413,28 +450,30 @@ cheatsheets all here.
          "\\begin{frame}[fragile]\\frametitle{%s}"
          "\\end{frame}")))
 
-  (use-package ob-restclient)
-
-  (use-package org-bullets
-    :commands (org-bullets-mode)
-    :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((dot . t)
      (mscgen . t)
      (python . t)
-     (restclient . t)))
+     (restclient . t)
+     (haskell . t)))
   (setq org-agenda-files '("~/org/")
-	org-default-notes-file (concat org-directory "/notes.org")
-	org-capture-templates '(("a" "Appointment" entry (file  "~/org/appointments.org" "Appointments") "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n\n")
-				("n" "Note" entry (file+headline "~/org/notes.org" "Notes") "* Note %?\n%T")
-				("l" "Link" entry (file+headline "~/org/links.org" "Links") "* %? %^L %^g \n%T" :prepend t)
-                                ("j" "Journal Entry" entry (file+datetree "~/org/journal.org") "* %?" :empty-lines 1)
-				("P" "Paper" entry (file+headline "~/org/papers.org" "Papers") "* %? %^L %^g \n%T" :prepend t)
-				("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
+	org-capture-templates '(("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
+				("o" "opensource" entry (file+headline "~/org/i.org" "Opensource") "* TODO %?\n%T" :prepend t)
 				("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))
 	org-src-fontify-natively t))
+
+
+(use-package ob-restclient
+  :after org)
+
+(use-package org-bullets
+  :after org
+  :commands (org-bullets-mode)
+  :init (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+(use-package org-present
+  :after org)
 #+END_SRC
 
 *** Multiple cursors
@@ -523,12 +562,34 @@ cheatsheets all here.
 (use-package avy)
 #+END_SRC
 
+*** Yasnippet
+
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :diminish
+  :commands (yas-reload-all)
+  :init
+  (eval-when-compile
+    ;; Silence missing function warnings
+    (declare-function yas-global-mode "yasnippet.el"))
+  :config
+  (yas-global-mode t)
+  (yas-reload-all))
+
+(use-package yasnippet-snippets
+  :pin melpa-stable
+  :after yasnippet
+  :config
+  (yas-reload-all))
+#+END_SRC
+
 *** Golden ratio
 
     Golden ratio makes splits looks better :)
 
 #+BEGIN_SRC emacs-lisp
 (use-package golden-ratio
+  :diminish
   :config (golden-ratio-mode))
 #+END_SRC
 
@@ -539,29 +600,29 @@ cheatsheets all here.
    the following:
 
 #+BEGIN_SRC emacs-lisp
-(use-package xresources-theme :pin melpa :ensure t :defer t)
-(use-package doom-themes :pin melpa-stable :ensure t :defer t)
-(use-package spacemacs-theme :pin melpa :ensure t :defer t)
-(use-package idea-darkula-theme :ensure t :defer t)
-(use-package punpun-theme :ensure t :defer t)
-(use-package white-theme :ensure t :defer t)
-(use-package arjen-grey-theme :ensure t :defer t)
-(use-package atom-one-dark-theme :ensure t :defer t)
-(use-package birds-of-paradise-plus-theme :ensure t :defer t)
-(use-package bliss-theme :ensure t :defer t)
-(use-package cyberpunk-theme :ensure t :defer t)
-(use-package espresso-theme :ensure t :defer t)
-(use-package github-theme :ensure t :defer t)
-(use-package heroku-theme :ensure t :defer t)
-(use-package idea-darkula-theme :ensure t :defer t)
-(use-package plan9-theme :ensure t :defer t)
-(use-package soothe-theme :ensure t :defer t)
-(use-package subatomic-theme :ensure t :defer t)
-(use-package sublime-themes :ensure t :defer t)
-(use-package white-theme :ensure t :defer t)
-(use-package madhat2r-theme :ensure t :defer t)
-(use-package kosmos-theme :ensure t :defer t)
-(use-package nord-theme :ensure t :defer t)
+(use-package xresources-theme :pin melpa)
+(use-package doom-themes :pin melpa-stable)
+(use-package spacemacs-theme :pin melpa)
+(use-package idea-darkula-theme)
+(use-package punpun-theme)
+(use-package white-theme)
+(use-package arjen-grey-theme)
+(use-package atom-one-dark-theme)
+(use-package birds-of-paradise-plus-theme)
+(use-package bliss-theme)
+(use-package cyberpunk-theme)
+(use-package espresso-theme)
+(use-package github-theme)
+(use-package heroku-theme)
+(use-package idea-darkula-theme)
+(use-package plan9-theme)
+(use-package soothe-theme)
+(use-package subatomic-theme)
+(use-package sublime-themes)
+(use-package white-theme)
+(use-package madhat2r-theme)
+(use-package kosmos-theme)
+(use-package nord-theme)
 #+END_SRC
 
 ** Programming languages
@@ -591,42 +652,52 @@ cheatsheets all here.
   :init (global-flycheck-mode))
 
 (use-package lsp-mode
-  :pin melpa-stable)
+  :init (setq lsp-prefer-flycheck nil))
 
 (use-package lsp-ui
-  :pin melpa-stable
+  :custom (lsp-ui-sideline-enable nil)
   :hook (lsp-mode . lsp-ui-mode))
 
 (use-package lsp-scala
   :load-path "~/.emacs.d/lisp"
-  :hook (scala-mode . lsp-scala-enable))
+  :after scala-mode
+  :demand t
+  :hook (scala-mode . lsp)
+        (scala-mode . flycheck-mode))
+
+(use-package company-lsp
+  :config
+  (push 'company-lsp company-backends))
 #+END_SRC
 
 *** others
 
 #+BEGIN_SRC emacs-lisp
-(use-package haskell-mode
-  :config
-  (use-package intero
+  (use-package haskell-mode
     :config
-     (add-hook 'haskell-mode-hook 'intero-mode)))
+    (custom-set-variables '(haskell-stylish-on-save t)))
 
+  (use-package idris-mode)
+  (use-package nix-mode)
+  (use-package groovy-mode)
+  (use-package yaml-mode)
+  (use-package json-mode)
+  (use-package reformatter
+    :pin melpa-stable)
 
-(use-package idris-mode)
-(use-package nix-mode)
-(use-package groovy-mode)
-(use-package yaml-mode)
-(use-package json-mode)
+  (use-package dhall-mode
+    :pin melpa
+    :mode  "\\.dhall\\'")
 
-
-(use-package markdown-mode
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown")
-
-  (use-package markdown-toc))
+  (use-package markdown-mode
+    :commands (markdown-mode gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
+	   ("\\.md\\'" . markdown-mode)
+	   ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown")
+  
+    :config
+    (use-package markdown-toc))
 #+END_SRC
 
 ** Some more configuration for when all packages has been loaded
