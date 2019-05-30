@@ -37,6 +37,5 @@
 
 ;;; Load the config
 (org-babel-load-file (concat user-emacs-directory "config.org"))
-(org-babel-load-file (concat user-emacs-directory "gnus.org"))
 
 (setq gc-cons-threshold 800000)
