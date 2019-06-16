@@ -78,7 +78,7 @@ cheatsheets all here.
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute
  'default nil :family "PragmataPro Mono Liga"
- :height 150)
+ :height 130)
 
 (use-package all-the-icons)
 
@@ -111,6 +111,12 @@ cheatsheets all here.
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (dashboard-setup-startup-hook))
+
+(use-package golden-ratio
+  :ensure t
+  :delight
+  :init (golden-ratio-mode 1)
+        (setq golden-ratio-auto-scale t))
 #+END_SRC
 
 *** maintaining selected theme between sessions
@@ -159,6 +165,14 @@ cheatsheets all here.
 #+BEGIN_SRC emacs-lisp
 (global-font-lock-mode 1)
 #+END_SRC
+
+*** update packages
+#+BEGIN_SRC emacs-lisp
+(use-package auto-package-update
+   :custom
+   (auto-package-update-delete-old-versions t))
+#+END_SRC
+
 ** Tools
 *** move-text
 
@@ -257,6 +271,16 @@ cheatsheets all here.
   :pin melpa-stable)
 #+END_SRC
 
+*** Modeline
+
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+   :hook   (after-init . doom-modeline-mode)
+   :custom
+   (doom-modeline-buffer-file-name-style 'relative-to-project)
+   (doom-modeline-height 15)
+   (doom-modeline-major-mode-color-icon t))
+#+END_SRC
 *** Flycheck
 
     Flycheck is a spellchecker.  Truth be told, I don't use it very
@@ -566,6 +590,7 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
+  :demand
   :diminish
   :commands (yas-reload-all)
   :init
@@ -583,15 +608,6 @@ cheatsheets all here.
   (yas-reload-all))
 #+END_SRC
 
-*** Golden ratio
-
-    Golden ratio makes splits looks better :)
-
-#+BEGIN_SRC emacs-lisp
-(use-package golden-ratio
-  :diminish
-  :config (golden-ratio-mode))
-#+END_SRC
 
 ** Themes
 
@@ -652,18 +668,12 @@ cheatsheets all here.
   :init (global-flycheck-mode))
 
 (use-package lsp-mode
-  :init (setq lsp-prefer-flycheck nil))
+  :init (setq lsp-prefer-flycheck nil)
+  :hook (scala-mode . lsp))
 
 (use-package lsp-ui
   :custom (lsp-ui-sideline-enable nil)
   :hook (lsp-mode . lsp-ui-mode))
-
-(use-package lsp-scala
-  :load-path "~/.emacs.d/lisp"
-  :after scala-mode
-  :demand t
-  :hook (scala-mode . lsp)
-        (scala-mode . flycheck-mode))
 
 (use-package company-lsp
   :config
