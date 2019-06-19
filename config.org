@@ -82,6 +82,10 @@ cheatsheets all here.
 
 (use-package all-the-icons)
 
+(use-package rainbow-delimiters
+  :demand
+  :hook (emacs-lisp-mode-hook . rainbow-delimiters-mode))
+
 (use-package all-the-icons-dired
   :hook (dired-mode-hook . all-the-icons-dired-mode))
 
@@ -297,13 +301,6 @@ cheatsheets all here.
     I'm mostly a helm user, but want to give ivy a try now.  Ivy comes
     out of the box with ~counsel~ and ~swiper~.
 
-**** Search the word under the cursor
-
-     Open swiper-isearch with ~C-s~, and then put copy the word under
-     the cursor to the minibuffer with ~M-n~.
-
-     For extending the search to the next word, use ~M-j~.
-
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :diminish ivy-mode
@@ -332,6 +329,16 @@ cheatsheets all here.
 (use-package swiper
   :bind (("C-s" . swiper)
          ("M-l" . swiper-avy)))
+
+(use-package ivy-posframe
+  :after ivy
+  :config
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  (setq ivy-posframe-parameters '((left-fringe . 15)
+                                  (right-fringe . 15)
+                                  (top-fringe . 15)
+                                  (bottom-fringe . 15)))
+  (ivy-posframe-mode 1))
 #+END_SRC
 
 *** ace-window
@@ -365,6 +372,8 @@ cheatsheets all here.
 	 ("C-x j" . gotoline/body)
 	 ("C-x c" . orghydra/body)
 	 ("C-x p" . dotfiles/body))
+  :custom
+  (hydra-hint-display-type 'posframe)
   :config
   (defhydra toggle (:color blue)
     "toggle"
@@ -684,11 +693,18 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
-    :config
-    (custom-set-variables '(haskell-stylish-on-save t)))
+    :config (custom-set-variables '(haskell-stylish-on-save t))
+    :mode "\\.hs\\'")
 
   (use-package idris-mode)
-  (use-package nix-mode)
+
+  (use-package nix-mode
+    :commands nix-mode
+    :init
+    (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
+    (add-to-list 'auto-mode-alist '("\\.nix.in\\'" . nix-mode))
+    :hook (nix-mode-hook .rainbow-delimiters-mode))
+
   (use-package groovy-mode)
   (use-package yaml-mode)
   (use-package json-mode)
