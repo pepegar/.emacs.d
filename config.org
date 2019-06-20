@@ -726,6 +726,15 @@ cheatsheets all here.
   
     :config
     (use-package markdown-toc))
+
+
+  (use-package rjsx-mode
+    :ensure t
+    :mode "\\.js\\'"
+    :config (setq js2-basic-offset 2
+                  js2-strict-missing-semi-warning nil
+                  js2-missing-semi-one-line-override nil
+                  js2-bounce-indent-p nil))
 #+END_SRC
 
 ** Some more configuration for when all packages has been loaded
