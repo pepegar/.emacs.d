@@ -26,6 +26,7 @@ cheatsheets all here.
 (setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.nix-profile/bin")))
 (setq exec-path (append exec-path '("/nix/var/nix/profiles/default/bin/")))
+(setq exec-path (append exec-path '("/run/current-system/sw/bin")))
 #+END_SRC
 
 *** plumbing
@@ -397,6 +398,7 @@ cheatsheets all here.
   (defhydra dotfiles (:color black)
     "dotfiles"
     ("c" (find-file "~/.emacs.d/config.org") "config.org")
+    ("C" (find-file "/su::/etc/nixos/configuration.nix") "configuration.nix")
     ("z" (find-file "~/.zshrc") "zshrc")
     ("g" (find-file "~/.emacs.d/gnus.org") "gnus")
     ("q" nil "cancel"))
