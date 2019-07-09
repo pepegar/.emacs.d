@@ -44,6 +44,15 @@ cheatsheets all here.
 (load custom-file)
 #+END_SRC
 
+*** line numbers
+
+    activate line numbers globally.
+
+#+BEGIN_SRC emacs-lisp
+(when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode))
+#+END_SRC
+
 *** ~use-package~
 
    I manage all the packages for my emacs configuration through the
@@ -79,7 +88,7 @@ cheatsheets all here.
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute
  'default nil :family "PragmataPro Mono Liga"
- :height 130)
+ :height 120)
 
 (use-package all-the-icons)
 
@@ -350,7 +359,6 @@ cheatsheets all here.
 (use-package ace-window
   :bind (("M-o" . ace-window)))
 #+END_SRC
-
 
 *** posframe
 
