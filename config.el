@@ -1,64 +1,21 @@
-* Emacs configuration
-
-This is my emacs configuration, this time in Org mode.  The previous
-working version of it was [[https://github.com/pepegar/emacs.d/tree/d6c5ef558fc4a28f7b107a4edb5c1383886a23d6][this commit]].
-
-The idea behind using org mode for this is that I can get rid of all
-these cheatsheets I've flying around my system (and also physical
-desk) and have both the emacs-lisp code, the notes, and the
-cheatsheets all here.
-
-
-** Initial configuration
-*** Some personal information
-
-#+BEGIN_SRC emacs-lisp
 (setq user-full-name "Pepe García"
       user-mail-address "jl.garhdez@gmail.com")
-#+END_SRC
 
-*** Help emacs find my executables
-
-
-#+BEGIN_SRC emacs-lisp
 (setq exec-path (append exec-path '("/usr/bin")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.local/bin")))
 (setq exec-path (append exec-path '("/Users/pepe/.nix-profile/bin")))
 (setq exec-path (append exec-path '("/nix/var/nix/profiles/default/bin/")))
 (setq exec-path (append exec-path '("/run/current-system/sw/bin")))
-#+END_SRC
 
-*** plumbing
-
-    To tell emacs that all saves should go to the ~/.backups~ folder.
-
-#+BEGIN_SRC emacs-lisp
 (setq backup-directory-alist `(("." . "~/.backups")))
-#+END_SRC
 
-    Save the custom variables to ~\~/.emacs.d/custom.el~
-
-#+BEGIN_SRC emacs-lisp
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
-#+END_SRC
 
-*** line numbers
-
-    activate line numbers globally.
-
-#+BEGIN_SRC emacs-lisp
 (when (version<= "26.0.50" emacs-version )
   (global-display-line-numbers-mode))
-#+END_SRC
 
-*** ~use-package~
-
-   I manage all the packages for my emacs configuration through the
-   fantastic [[https://github.com/jwiegley/use-package][use-package]]. Here's how to get it:
-
-#+BEGIN_SRC emacs-lisp
 (require 'package)
 
 (setq package-enable-at-startup nil)
@@ -79,130 +36,19 @@ cheatsheets all here.
 
 (setq use-package-always-defer t
       use-package-always-ensure t)
-#+END_SRC
 
-*** Appearance
-
-    Select the font size, family...
-
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute
- 'default nil :family "PragmataPro Mono Liga"
- :height 120)
-
-(use-package all-the-icons)
-
-(use-package rainbow-delimiters
-  :demand
-  :hook (emacs-lisp-mode-hook . rainbow-delimiters-mode))
-
-(use-package all-the-icons-dired
-  :hook (dired-mode-hook . all-the-icons-dired-mode))
-
-(use-package pragmatapro
-  :load-path "~/.emacs.d/lisp")
-
-(use-package page-break-lines
-  :pin melpa-stable
- )
-
-(use-package dashboard
-  :pin melpa-stable
-  :demand
-  :if (< (length command-line-args) 2)
-  :config
-  (defun dashboard-load-packages (list-size)
-    (insert (make-string (ceiling (max 0 (- dashboard-banner-length 38)) 2) ? )
-            (format "[%d packages loaded in %s]" (length package-activated-list) (emacs-init-time))))
-
-  (add-to-list 'dashboard-item-generators '(packages . dashboard-load-packages))
-
-  (setq dashboard-items '((packages)
-                          (projects . 5)
-                          (recents . 5)
-                          (agenda))
-        dashboard-startup-banner 'logo)
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (dashboard-setup-startup-hook))
-+END_SRC
-
-*** maintaining selected theme between sessions
-
-    I think I got all this from @anler, but am not sure :)
-
-#+BEGIN_SRC emacs-lisp
-(defun my-load-saved-theme ()
-  (interactive)
-  (when (file-exists-p my-saved-theme-filename)
-    (let ((theme (intern (with-temp-buffer
-                           (insert-file-contents my-saved-theme-filename)
-                           (buffer-string)))))
-      (unless (eq theme 'default)
-        (load-theme theme :no-confirm)))))
-
-(add-hook 'after-init-hook #'my-load-saved-theme)
-
-(defvar my-load-theme-hook
-  nil
-  "Hooks to run after loading a theme.")
-
-(defvar my-saved-theme-filename "~/.emacs.d/.emacs-theme")
-
-(advice-add 'load-theme :after #'my-save-theme)
-(advice-add 'disable-theme :after #'my-save-default-theme)
-(advice-add 'load-theme :after #'my-run-theme-hooks)
-
-(defun my-run-theme-hooks (theme &optional no-confirm no-enable)
-  (run-hooks 'my-load-theme-hook))
-
-(defun my-save-default-theme (disabled-theme)
-  (my-save-theme 'default))
-
-(defun my-save-theme (theme &optional no-confirm no-enable)
-  (with-temp-buffer
-    (insert (symbol-name theme))
-    (when (file-writable-p my-saved-theme-filename)
-      (write-region (point-min)
-                    (point-max)
-                    my-saved-theme-filename))))
-#+END_SRC
-
-*** Font locking
-
-#+BEGIN_SRC emacs-lisp
 (global-font-lock-mode 1)
-#+END_SRC
 
-*** update packages
-#+BEGIN_SRC emacs-lisp
 (use-package auto-package-update
    :custom
    (auto-package-update-delete-old-versions t))
-#+END_SRC
 
-** Tools
-*** move-text
-
-    Move text is for... moving text around :D
-
-    Current keybindings i'm using are ~M-<UP>~ and ~M-<DOWN>~.
-
-#+BEGIN_SRC emacs-lisp
 (use-package move-text
   :config (move-text-default-bindings))
-#+END_SRC
 
-*** company
-    Company is an autocompletion framework for emacs!
-
-#+BEGIN_SRC emacs-lisp
 (use-package company
   :bind (("M-n" . company-complete)))
-#+END_SRC
-*** paredit
 
-#+BEGIN_SRC emacs-lisp
 (use-package paredit
   :config
   (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
@@ -210,57 +56,15 @@ cheatsheets all here.
   (add-hook 'ielm-mode-hook #'paredit-mode)
   (add-hook 'lisp-mode-hook #'paredit-mode)
   (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
-#+END_SRC
 
-*** Gnus
-
-    Gnus is for email within emacs.  Its configuration is in ~\~/.emacs.d/gnus.org~
-
-*** Erc
-
-    Erc is an IRC client for emacs.
-
-#+BEGIN_SRC emacs-lisp
 (use-package erc
   :config
     (setq erc-modules '(autojoin notifications)))
-#+END_SRC
 
-*** Magit
-
-    Magit is a better way to use git, from within emacs, of course.
-
-#+BEGIN_SRC emacs-lisp
 (use-package magit)
-#+END_SRC
 
-    There are several tricks I like to do with Magit.
-
-**** commit & spinoff branch
-
-     Normally, when I work on a small patch for a project I don't
-     directly start creating the feature branch, but first create the
-     commit/commits that solve the issue and then create the branch &
-     pull request.
-
-     I do this by fixing and creating the commits normally (on top of
-     ~master~), and then within the magit screen, I just hit ~b s~,
-     making a spinoff of master, with the last commits.  This is so
-     convenient :)
-
-**** Magit forges
-
-     Let's try magit forge...
-
-#+BEGIN_SRC emacs-lisp
 (use-package forge)
-#+END_SRC
 
-     It returns an error while trying to get notifications...
-
-*** Projectile
-
-#+BEGIN_SRC emacs-lisp
 (use-package projectile
   :config
   (projectile-global-mode)
@@ -268,44 +72,21 @@ cheatsheets all here.
         '(:eval (format " [%s]" (projectile-project-name))))
   (setq projectile-remember-window-configs t)
   (setq projectile-completion-system 'ivy))
-#+END_SRC
-*** Diminish
 
-    You don't always want the minor modes you're using to appear on
-    the modeline, that's what ~diminish~ is for.
-
-#+BEGIN_SRC emacs-lisp
 (use-package diminish
   :pin melpa-stable)
-#+END_SRC
 
-*** Modeline
-
-#+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
    :hook   (after-init . doom-modeline-mode)
    :custom
    (doom-modeline-buffer-file-name-style 'relative-to-project)
    (doom-modeline-height 15)
    (doom-modeline-major-mode-color-icon t))
-#+END_SRC
-*** Flycheck
 
-    Flycheck is a spellchecker.  Truth be told, I don't use it very
-    much... but yeah, here it is!
-
-#+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :pin melpa-stable
   :commands global-flycheck-mode)
-#+END_SRC
 
-*** Ivy, counsel, swiper
-
-    I'm mostly a helm user, but want to give ivy a try now.  Ivy comes
-    out of the box with ~counsel~ and ~swiper~.
-
-#+BEGIN_SRC emacs-lisp
 (use-package ivy
   :diminish ivy-mode
   :bind (("C-x C-b" . ivy-switch-buffer))
@@ -343,33 +124,12 @@ cheatsheets all here.
                                   (top-fringe . 15)
                                   (bottom-fringe . 15)))
   (ivy-posframe-mode 1))
-#+END_SRC
 
-*** ace-window
-
-    ace-window is a better ~other-window~.
-
-#+BEGIN_SRC emacs-lisp
 (use-package ace-window
   :bind (("M-o" . ace-window)))
-#+END_SRC
 
-*** posframe
-
-    posframe is a package for showing a small child frame within the
-    current frame.  Currently only used by hydra
-
-#+BEGIN_SRC emacs-lisp
 (use-package posframe)
-#+END_SRC
 
-*** Hydra
-
-    Hydra allows me to create menus of keybindings.  I have several
-    ones, for accessing my dotfiles, spelllchecking, going to my org
-    files...
-
-#+BEGIN_SRC emacs-lisp
 (use-package hydra
   :bind (("C-x t" . toggle/body)
 	 ("C-x j" . gotoline/body)
@@ -418,36 +178,10 @@ cheatsheets all here.
     ("n" next-line "down")
     ("p" (lambda () (interactive) (forward-line -1))  "up")
     ("g" goto-line "goto-line")))
-#+END_SRC
 
-*** Restclient
-
-    Restclient is an awesome tool that allows you to describe HTTP
-    request in plain text and execute them.  From [fn:1]their readme:
-
-    | keybinding | action                                                                                         |
-    |------------+------------------------------------------------------------------------------------------------|
-    | ~C-c C-c~  | runs the query under the cursor, tries to pretty-print the response (if possible)              |
-    | ~C-c C-r~  | same, but doesn't do anything with the response, just shows the buffer                         |
-    | ~C-c C-v~  | same as C-c C-c, but doesn't switch focus to other window                                      |
-    | ~C-c C-p~  | jump to the previous query                                                                     |
-    | ~C-c C-n~  | jump to the next query                                                                         |
-    | ~C-c C-.~  | mark the query under the cursor                                                                |
-    | ~C-c C-u~  | copy query under the cursor as a curl command                                                  |
-    | ~C-c C-g~  | start a helm session with sources for variables and requests (if helm is available, of course) |
-    | ~C-c n n~  | narrow to regi                                                                                 |
-
-#+BEGIN_SRC emacs-lisp
 (use-package restclient
   :mode (("\\.http\\'" . restclient-mode)))
-#+END_SRC
 
-*** Org mode
-
-    I try to write down everything in org mode, and to keep it
-    updated.  This is my current configuration.
-
-#+BEGIN_SRC emacs-lisp
 (use-package org
   :bind (("C-c a a" . org-agenda)
 	 ("C-c c" . counsel-org-capture))
@@ -512,11 +246,7 @@ cheatsheets all here.
 
 (use-package org-present
   :after org)
-#+END_SRC
 
-*** Multiple cursors
-
-#+BEGIN_SRC emacs-lisp
 (use-package multiple-cursors
   :bind (("C-* l" . mc/edit-lines)
 	 ("C->" . mc/mark-next-like-this)
@@ -544,65 +274,12 @@ cheatsheets all here.
          ("C-. =" . mc/compare-chars))
     (eval-after-load 'cua-base
 '(bind-key "C-. C-," 'mc/cua-rectangle-to-multiple-cursors cua--rectangle-keymap))))
-#+END_SRC
 
-*** Expand region
-
-    Expand region is an useful little tool.  With it I can select a
-    higher region each time I hit ~C-@~.  For example, imagine we have
-    the following function call in lisp (and that the caret is in the
-    ~^~ position):
-
-#+BEGIN_SRC
-(hello (dolly))
-         ^
-#+END_SRC
-
-    If I hit ~C-@~ once, I'll get this selected:
-
-#+BEGIN_SRC
-(hello (dolly))
-        ^---^
-#+END_SRC
-
-    If I hit it once again, I'll get:
-
-#+BEGIN_SRC
-(hello (dolly))
-       ^-----^
-#+END_SRC
-
-    And if I hit it again, I'll get:
-
-#+BEGIN_SRC
-(hello (dolly))
- ^-----------^
-#+END_SRC
-
-    Finally, if I hit it 4 times, the whole sexp will be selected:
-
-#+BEGIN_SRC
-(hello (dolly))
-^-------------^
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
 (use-package expand-region
   :bind ("C-@" . er/expand-region))
-#+END_SRC
 
-*** Avy
-
-    Avy allows me to jump to different parts of the current buffer.
-    There are some useful pictures of how it works in [[https://github.com/abo-abo/avy][the repo]].
-
-#+BEGIN_SRC emacs-lisp
 (use-package avy)
-#+END_SRC
 
-*** Yasnippet
-
-#+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :demand
   :diminish
@@ -620,16 +297,7 @@ cheatsheets all here.
   :after yasnippet
   :config
   (yas-reload-all))
-#+END_SRC
 
-
-** Themes
-
-   I switch between a big number of themes, sometimes several times a
-   day, depending on my mood.  The ones I stick with as of now, are
-   the following:
-
-#+BEGIN_SRC emacs-lisp
 (use-package xresources-theme :pin melpa)
 (use-package doom-themes :pin melpa-stable)
 (use-package spacemacs-theme :pin melpa)
@@ -653,16 +321,7 @@ cheatsheets all here.
 (use-package madhat2r-theme)
 (use-package kosmos-theme)
 (use-package nord-theme)
-#+END_SRC
 
-** Programming languages
-
-   At the time of writing this, I mostly write scala, but I've used a
-   number of languages previously:
-
-*** Scala
-
-#+BEGIN_SRC emacs-lisp
 ;; Enable scala-mode and sbt-mode
 (use-package scala-mode
   :mode "\\.s\\(cala\\|bt\\)$")
@@ -692,68 +351,53 @@ cheatsheets all here.
 (use-package company-lsp
   :config
   (push 'company-lsp company-backends))
-#+END_SRC
 
-*** others
+(use-package haskell-mode
+  :mode "\\.hs\\'")
 
-#+BEGIN_SRC emacs-lisp
-  (use-package haskell-mode
-    :mode "\\.hs\\'")
+(use-package idris-mode)
 
-  (use-package idris-mode)
+(use-package nix-mode
+  :commands nix-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
+  (add-to-list 'auto-mode-alist '("\\.nix.in\\'" . nix-mode))
+  :hook (nix-mode-hook .rainbow-delimiters-mode))
 
-  (use-package nix-mode
-    :commands nix-mode
-    :init
-    (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
-    (add-to-list 'auto-mode-alist '("\\.nix.in\\'" . nix-mode))
-    :hook (nix-mode-hook .rainbow-delimiters-mode))
+(use-package groovy-mode)
+(use-package yaml-mode)
+(use-package json-mode)
+(use-package reformatter
+  :pin melpa-stable)
 
-  (use-package groovy-mode)
-  (use-package yaml-mode)
-  (use-package json-mode)
-  (use-package reformatter
-    :pin melpa-stable)
+(use-package dhall-mode
+  :pin melpa
+  :mode  "\\.dhall\\'")
 
-  (use-package dhall-mode
-    :pin melpa
-    :mode  "\\.dhall\\'")
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+	 ("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown")
 
-  (use-package markdown-mode
-    :commands (markdown-mode gfm-mode)
-    :mode (("README\\.md\\'" . gfm-mode)
-	   ("\\.md\\'" . markdown-mode)
-	   ("\\.markdown\\'" . markdown-mode))
-    :init (setq markdown-command "multimarkdown")
-  
-    :config
-    (use-package markdown-toc))
+  :config
+  (use-package markdown-toc))
 
 
-  (use-package rjsx-mode
-    :ensure t
-    :mode "\\.js\\'"
-    :config (setq js2-basic-offset 2
-                  js2-strict-missing-semi-warning nil
-                  js2-missing-semi-one-line-override nil
-                  js2-bounce-indent-p nil))
-#+END_SRC
+(use-package rjsx-mode
+  :ensure t
+  :mode "\\.js\\'"
+  :config (setq js2-basic-offset 2
+                js2-strict-missing-semi-warning nil
+                js2-missing-semi-one-line-override nil
+                js2-bounce-indent-p nil))
 
-** Some more configuration for when all packages has been loaded
-
-#+BEGIN_SRC emacs-lisp
 (require 'diminish)
 (require 'bind-key)
 
 (electric-pair-mode 1)
-#+END_SRC
 
-** Weird characters I write
-
-   In a day to day basis, I only use the ~λ~ there, but who knows? Now
-   I can write most of those letters :)
-
-#+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "M-g a") "α") ; alpha
 (global-set-key (kbd "M-g b") "β") ; beta
 (global-set-key (kbd "M-g g") "γ") ; gamma
@@ -806,22 +450,3 @@ cheatsheets all here.
 (global-set-key (kbd "M-g W") "Ω") ; OMEGA
 (global-set-key (kbd "M-g .") "∘")
 (global-set-key (kbd "M-g *") "⊛")
-
-#+END_SRC
-
-** Thanks
-
-For this configuration I've been inspired by:
-
-- [fn:2]anler
-- [fn:3]danielmai
-- [fn:4]jwiegley
-- [fn:5]abo-abo
-
-* Footnotes
-
-[fn:1] https://github.com/pashky/restclient.el
-[fn:2] https://github.com/anler/.emacs.d
-[fn:3] https://github.com/danielmai
-[fn:4] https://github.com/jwiegley
-[fn:5] https://github.com/abo-abo
