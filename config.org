@@ -125,13 +125,7 @@ cheatsheets all here.
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (dashboard-setup-startup-hook))
-
-(use-package golden-ratio
-  :ensure t
-  :delight
-  :init (golden-ratio-mode 1)
-        (setq golden-ratio-auto-scale t))
-#+END_SRC
++END_SRC
 
 *** maintaining selected theme between sessions
 
@@ -407,6 +401,7 @@ cheatsheets all here.
     "dotfiles"
     ("c" (find-file "~/.emacs.d/config.org") "config.org")
     ("C" (find-file "/su::/etc/nixos/configuration.nix") "configuration.nix")
+    ("h" (find-file "~/.config/nixpkgs/home.nix") "home.nix")
     ("z" (find-file "~/.zshrc") "zshrc")
     ("g" (find-file "~/.emacs.d/gnus.org") "gnus")
     ("q" nil "cancel"))
@@ -703,7 +698,6 @@ cheatsheets all here.
 
 #+BEGIN_SRC emacs-lisp
   (use-package haskell-mode
-    :config (custom-set-variables '(haskell-stylish-on-save t))
     :mode "\\.hs\\'")
 
   (use-package idris-mode)
