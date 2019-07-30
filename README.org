@@ -1,3 +1,6 @@
 * .emacs.d
 
-This is my emacs dotfiles repository.  See `init.el` for more :)
+This is my dotemacs.  See `init.el` for more :)
+
+After the emacs-pocalypse, most of these files have been copied from
+@jesusMtnez.

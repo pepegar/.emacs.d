@@ -18,6 +18,8 @@ gnus.el
 custom.el
 url/
 var/
+transient/
+cache/
 
 network-security.data
 .#recentf
