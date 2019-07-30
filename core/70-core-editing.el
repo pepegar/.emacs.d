@@ -1,11 +1,13 @@
 ;;; 70-core-editing.el --- basic edit tools I use
 
-(use-package multiple-cursors)
+(use-package paredit
+  :config
+  (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
 
 (use-package multiple-cursors
   :bind (("C-* l" . mc/edit-lines)
-	       ("C->" . mc/mark-next-like-this)
-	       ("C-<" . mc/mark-previous-like-this)
+         ("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
          ("C-* C-*" . mc/mark-all-like-this)
          ("C-c C-* C-*" . mc/mark-more-like-this)
          ("C-* i" . mc/insert-numbers)
