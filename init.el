@@ -76,4 +76,4 @@
 (use-package el-init)
 
 (el-init-load emacs-dir
-	      :subdirectories (list core-dir modules-dir))
+        :subdirectories (list core-dir modules-dir))

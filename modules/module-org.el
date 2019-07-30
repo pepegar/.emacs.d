@@ -1,6 +1,6 @@
 (use-package org
   :bind (("C-c a a" . org-agenda)
-	       ("C-c c" . counsel-org-capture))
+       ("C-c c" . counsel-org-capture))
   :config
 
   (unless (boundp 'org-export-latex-classes)
@@ -46,10 +46,10 @@
      (restclient . t)
      (haskell . t)))
   (setq org-agenda-files '("~/org/")
-	      org-capture-templates '(("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
-				                        ("o" "opensource" entry (file+headline "~/org/i.org" "Opensource") "* TODO %?\n%T" :prepend t)
-				                        ("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))
-	      org-src-fontify-natively t))
+      org-capture-templates '(("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
+                        ("o" "opensource" entry (file+headline "~/org/i.org" "Opensource") "* TODO %?\n%T" :prepend t)
+                        ("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))
+      org-src-fontify-natively t))
 
 
 (use-package ob-restclient
