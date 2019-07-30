@@ -2,23 +2,16 @@
 ;; This file is adapted from @danielmai's ~init.el~
 ;;
 (setq gc-cons-threshold 400000000)
-
-;;; Begin initialization
-;; Turn off mouse interface early in startup to avoid momentary display
-(when window-system
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (tooltip-mode -1))
-
 (setq inhibit-startup-message t)
 (setq initial-scratch-message "")
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
 
 ;;; Set up package
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(add-to-list 'package-archives '("elpa" . "https://elpa.gnu.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 (when (boundp 'package-pinned-packages)
   (setq package-pinned-packages
         '((org-plus-contrib . "org"))))
@@ -35,9 +28,7 @@
 (eval-when-compile
   (require 'use-package))
 
-(setq gc-cons-threshold 800000)
-
-h(setq user-full-name "Pepe García"
+(setq user-full-name "Pepe García"
       user-mail-address "jl.garhdez@gmail.com")
 
 (setq exec-path (append exec-path '("/usr/bin")))
@@ -49,11 +40,10 @@ h(setq user-full-name "Pepe García"
 
 (setq backup-directory-alist `(("." . "~/.backups")))
 
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
 
-(when (version<= "26.0.50" emacs-version )
-  (global-display-line-numbers-mode))
+(unless (version< emacs-version "26.1")
+  (use-package display-line-numbers
+    :hook ((prog-mode text-mode) . display-line-numbers-mode)))
 
 (require 'package)
 
@@ -78,15 +68,36 @@ h(setq user-full-name "Pepe García"
 
 (global-font-lock-mode 1)
 
+(use-package scroll-bar
+  :ensure nil
+  :config (scroll-bar-mode -1))
+
+(use-package menu-bar
+  :ensure nil
+  :bind ("C-x C-k" . kill-this-buffer)
+  :config (menu-bar-mode -1))
+
+(use-package tool-bar
+  :ensure nil
+  :config (tool-bar-mode -1))
+
+(use-package faces
+  :ensure nil
+  :config
+  (when (member "PragmataPro" (font-family-list))
+    (set-face-attribute 'default nil :font "PragmataPro 12")))
+
 (use-package auto-package-update
-   :custom
-   (auto-package-update-delete-old-versions t))
+  :custom
+  (auto-package-update-delete-old-versions t))
 
 (use-package move-text
   :config (move-text-default-bindings))
 
 (use-package company
   :bind (("M-n" . company-complete)))
+
+(use-package notmuch)
 
 (use-package paredit
   :config
@@ -98,7 +109,7 @@ h(setq user-full-name "Pepe García"
 
 (use-package erc
   :config
-    (setq erc-modules '(autojoin notifications)))
+  (setq erc-modules '(autojoin notifications)))
 
 (use-package magit)
 
@@ -115,24 +126,25 @@ h(setq user-full-name "Pepe García"
 (use-package diminish
   :pin melpa-stable)
 
-(use-package doom-modeline
-   :hook   (after-init . doom-modeline-mode)
-   :custom
-   (doom-modeline-buffer-file-name-style 'relative-to-project)
-   (doom-modeline-height 15)
-   (doom-modeline-major-mode-color-icon t))
-
-(use-package flycheck
-  :pin melpa-stable
-  :commands global-flycheck-mode)
+(use-package posframe)
 
 (use-package ivy
   :diminish ivy-mode
   :bind (("C-x C-b" . ivy-switch-buffer))
+  :custom
+    (hydra-hint-display-type 'posframe)
   :config
-      (setq ivy-use-virtual-buffers t
-            ivy-count-format "%d/%d "
-            ivy-re-builders-alist '((swiper . ivy--regex-plus))))
+  (setq ivy-use-virtual-buffers t
+        ivy-count-format "%d/%d "
+        ivy-re-builders-alist '((swiper . ivy--regex-plus))))
+
+(use-package ivy-posframe
+  ;; :after ivy
+  :defer t
+  :config
+  ;; (setq ivy-display-function #'ivy-posframe-display)
+  (setq ivy-display-function #'ivy-posframe-display-at-frame-bottom-left)
+  (ivy-posframe-enable))
 
 (use-package flx)
 
@@ -140,7 +152,7 @@ h(setq user-full-name "Pepe García"
   :bind (("M-x"     . counsel-M-x)
          ([f9]      . counsel-load-theme))
   :config
-    (setq ivy-initial-inputs-alist nil))
+  (setq ivy-initial-inputs-alist nil))
 
 (use-package counsel-projectile
   :bind (("C-c a g" . counsel-ag)
@@ -154,28 +166,11 @@ h(setq user-full-name "Pepe García"
   :bind (("C-s" . swiper)
          ("M-l" . swiper-avy)))
 
-(use-package ivy-posframe
-  :after ivy
-  :config
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-  (setq ivy-posframe-parameters '((left-fringe . 15)
-                                  (right-fringe . 15)
-                                  (top-fringe . 15)
-                                  (bottom-fringe . 15)))
-  (ivy-posframe-mode 1))
-
-(use-package ace-window
-  :bind (("M-o" . ace-window)))
-
-(use-package posframe)
-
 (use-package hydra
   :bind (("C-x t" . toggle/body)
 	 ("C-x j" . gotoline/body)
 	 ("C-x c" . orghydra/body)
 	 ("C-x p" . dotfiles/body))
-  :custom
-  (hydra-hint-display-type 'posframe)
   :config
   (defhydra toggle (:color blue)
     "toggle"
@@ -198,11 +193,9 @@ h(setq user-full-name "Pepe García"
 
   (defhydra dotfiles (:color black)
     "dotfiles"
-    ("c" (find-file "~/.emacs.d/config.org") "config.org")
+    ("i" (find-file "~/.config/nixpkgs/applications/emacs/init.el") "init.el")
     ("C" (find-file "/su::/etc/nixos/configuration.nix") "configuration.nix")
     ("h" (find-file "~/.config/nixpkgs/home.nix") "home.nix")
-    ("z" (find-file "~/.zshrc") "zshrc")
-    ("g" (find-file "~/.emacs.d/gnus.org") "gnus")
     ("q" nil "cancel"))
 
   (defhydra gotoline
@@ -218,6 +211,15 @@ h(setq user-full-name "Pepe García"
     ("p" (lambda () (interactive) (forward-line -1))  "up")
     ("g" goto-line "goto-line")))
 
+(use-package hydra-posframe
+  :load-path "~/.emacs.d/lisp/hydra-posframe.el"
+  :hook (after-init . hydra-posframe-enable))
+
+(use-package major-mode-hydra
+  :ensure t
+  :bind
+  ("M-SPC" . major-mode-hydra))
+
 (use-package restclient
   :mode (("\\.http\\'" . restclient-mode)))
 
@@ -229,9 +231,9 @@ h(setq user-full-name "Pepe García"
   (unless (boundp 'org-export-latex-classes)
     (setq org-export-latex-classes nil))
   (add-to-list 'org-export-latex-classes
-    ;; beamer class, for presentations
-    '("beamer"
-       "\\documentclass[11pt]{beamer}\n
+	       ;; beamer class, for presentations
+	       '("beamer"
+		 "\\documentclass[11pt]{beamer}\n
         \\mode<{{{beamermode}}}>\n
         \\usetheme{{{{beamertheme}}}}\n
         \\usecolortheme{{{{beamercolortheme}}}}\n
@@ -253,13 +255,13 @@ h(setq user-full-name "Pepe García"
         \\usepackage{verbatim}\n
         \\institute{{{{beamerinstitute}}}}\n          
          \\subject{{{{beamersubject}}}}\n"
-  
-       ("\\section{%s}" . "\\section*{%s}")
-       
-       ("\\begin{frame}[fragile]\\frametitle{%s}"
-         "\\end{frame}"
-         "\\begin{frame}[fragile]\\frametitle{%s}"
-         "\\end{frame}")))
+		 
+		 ("\\section{%s}" . "\\section*{%s}")
+		 
+		 ("\\begin{frame}[fragile]\\frametitle{%s}"
+		  "\\end{frame}"
+		  "\\begin{frame}[fragile]\\frametitle{%s}"
+		  "\\end{frame}")))
 
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -303,16 +305,16 @@ h(setq user-full-name "Pepe García"
 
 (use-package mc-extras
   :commands (mc/compare-chars mc/compare-chars-backward mc/compare-chars-forward
-            mc/cua-rectangle-to-multiple-cursors
-            mc/remove-current-cursor mc/remove-duplicated-cursors)
+			      mc/cua-rectangle-to-multiple-cursors
+			      mc/remove-current-cursor mc/remove-duplicated-cursors)
   :config
   (progn
     (bind-keys :map mc/keymap
-         ("C-. C-d" . mc/remove-current-cursor)
-         ("C-. d" . mc/remove-duplicated-cursors)
-         ("C-. =" . mc/compare-chars))
+               ("C-. C-d" . mc/remove-current-cursor)
+               ("C-. d" . mc/remove-duplicated-cursors)
+               ("C-. =" . mc/compare-chars))
     (eval-after-load 'cua-base
-'(bind-key "C-. C-," 'mc/cua-rectangle-to-multiple-cursors cua--rectangle-keymap))))
+      '(bind-key "C-. C-," 'mc/cua-rectangle-to-multiple-cursors cua--rectangle-keymap))))
 
 (use-package expand-region
   :bind ("C-@" . er/expand-region))
@@ -337,6 +339,32 @@ h(setq user-full-name "Pepe García"
   :config
   (yas-reload-all))
 
+(use-package doom-modeline
+  :hook
+  (after-init . doom-modeline-mode)
+  :custom
+  (doom-modeline-buffer-file-name-style 'relative-to-project)
+  (doom-modeline-height 20)
+  (doom-modeline-major-mode-color-icon t))
+
+(use-package dashboard
+  :demand
+  :if (< (length command-line-args) 2)
+  :bind (:map dashboard-mode-map
+              ("U" . auto-package-update-now)
+              ("R" . restart-emacs)
+              ("K" . kill-emacs))
+  :custom
+  (dashboard-startup-banner 'logo)
+  (dashboard-banner-logo-title "The One True Editor, Emacs")
+  (dashboard-set-heading-icons t)
+  (dashboard-set-file-icons t)
+  (dashboard-set-init-info nil)
+  (dashboard-set-navigator t)
+  (dashboard-set-footer t)
+  :config
+  (dashboard-setup-startup-hook))
+
 (use-package xresources-theme :pin melpa)
 (use-package doom-themes :pin melpa-stable)
 (use-package spacemacs-theme :pin melpa)
@@ -360,6 +388,11 @@ h(setq user-full-name "Pepe García"
 (use-package madhat2r-theme)
 (use-package kosmos-theme)
 (use-package nord-theme)
+
+(use-package haskell-mode
+  :mode "\\.hs$"
+  :config
+  (load "haskell-mode-autoloads" nil t))
 
 ;; Enable scala-mode and sbt-mode
 (use-package scala-mode
@@ -390,9 +423,6 @@ h(setq user-full-name "Pepe García"
 (use-package company-lsp
   :config
   (push 'company-lsp company-backends))
-
-(use-package haskell-mode
-  :mode "\\.hs\\'")
 
 (use-package idris-mode)
 
