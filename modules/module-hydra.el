@@ -47,34 +47,4 @@
     ("p" (lambda () (interactive) (forward-line -1))  "up")
     ("g" goto-line "goto-line")))
 
-(use-package major-mode-hydra
-  :ensure t
-  :bind ("M-SPC" . major-mode-hydra)
-  :config
-  (setq major-mode-hydra-title-generator
-        '(lambda (mode)
-           (s-concat "\n"
-                     (s-repeat 10 " ")
-                     (all-the-icons-icon-for-mode mode :v-adjust 0.05)
-                     " "
-                     (symbol-name mode)
-                     " commands")))
-
-  (major-mode-hydra-define emacs-lisp-mode nil
-    ("Eval"
-     (("b" eval-buffer "buffer")
-      ("e" eval-defun "defun")
-      ("r" eval-region "region"))
-     "REPL"
-     (("I" ielm "ielm"))
-     "Test"
-     (("t" ert "prompt")
-      ("T" (ert t) "all")
-      ("F" (ert :failed) "failed"))
-     "Doc"
-     (("d" describe-foo-at-point "thing-at-pt")
-      ("f" describe-function "function")
-      ("v" describe-variable "variable")
-      ("i" info-lookup-symbol "info lookup")))))
-
 (provide 'module-hydra)
