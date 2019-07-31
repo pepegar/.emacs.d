@@ -35,5 +35,12 @@
 (use-package expand-region
   :bind ("C-@" . er/expand-region))
 
+(use-package move-text
+  :bind (("M-<up>" . move-text-up)
+         ("M-<down>" . move-text-down)))
+
+(global-set-key (kbd "M-u") 'upcase-dwim)
+(global-set-key (kbd "M-l") 'downcase-dwim)
+
 (provide '70-core-editing)
 ;;; 70-core-editing.el ends here
