@@ -2,7 +2,7 @@
 
 (use-package company
   :diminish
-  :hook (after-init . global-company-mode)
+  :hook (prog-mode . global-company-mode)
   :functions (my-company-yasnippet)
   :bind (("M-/" . company-complete)
          ("<backtab>" . company-yasnippet)
