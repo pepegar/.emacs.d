@@ -9,7 +9,7 @@
   (doom-themes-enable-bold t)
   (doom-themes-enable-italic t)
   :config
-  (load-theme 'doom-one t)
+  (load-theme 'doom-nord-light t)
   (doom-themes-org-config))
 
 (use-package dashboard
@@ -93,7 +93,7 @@
   :ensure nil
   :config
   (when (member "PragmataPro" (font-family-list))
-    (set-face-attribute 'default nil :font "PragmataPro 13"))
+    (set-face-attribute 'default nil :font "PragmataPro Mono Liga 12"))
   (when (member "FontAwesome" (font-family-list))
     (set-fontset-font t 'unicode "FontAwesome" nil 'prepend)))
 

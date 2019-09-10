@@ -2,15 +2,11 @@
 
 (use-package company
   :diminish
-  :hook (prog-mode . global-company-mode)
-  :functions (my-company-yasnippet)
   :bind (("M-/" . company-complete)
-         ("<backtab>" . company-yasnippet)
          :map company-active-map
          ("C-p" . company-select-previous)
          ("C-n" . company-select-next)
-         ("<tab>" . company-complete-common-or-cycle)
-         ("<backtab>" . my-company-yasnippet))
+         ("<tab>" . company-complete-common-or-cycle))
   :custom
   (company-idle-delay 0)
   (company-echo-delay 0)
@@ -19,12 +15,7 @@
   (company-tooltip-align-annotations t)
   (company-show-numbers t)
   (company-dabbrev-downcase nil)
-  (company-dabbrev-ignore-case t)
-  :config
-  (defun my-company-yasnippet ()
-    (interactive)
-    (company-abort)
-    (call-interactively 'company-yasnippet)))
+  (company-dabbrev-ignore-case t))
 
 
 

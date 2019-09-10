@@ -4,13 +4,14 @@
   :custom
   (lsp-ui-doc-enable t)
   (lsp-ui-doc-include-signture t)
-  (lsp-ui-doc-position 'at-point)
+  (lsp-ui-doc-position 'top)
   (lsp-ui-sideline-enable nil))
 
 (use-package lsp-mode
   :custom
   (lsp-session-file (concat cache-dir ".lsp-session-v1"))
-  (lsp-prefer-flymake nil))
+  (lsp-prefer-flymake t)
+  (lsp-enable-snippet nil))
 
 (use-package company-lsp
   :after company-mode
