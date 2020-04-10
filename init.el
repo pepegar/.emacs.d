@@ -2,7 +2,7 @@
 ;;
 ;; Author:  JesusMtnez <jesusmartinez93@gmail.com>
 ;; Author:  Pepe Garcia <pepe@pepegar.com>
-;; URL:     https://gitlab.com/JesusMtnez/emacs.d
+;; URL:     https://gitlab.com/pepegar/.emacs.d
 ;; License: MIT
 
 ;; GC threshold to 1GB

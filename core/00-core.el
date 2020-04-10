@@ -21,7 +21,6 @@
   :ensure nil
   :bind ("C-c C-c" . comment-or-uncomment-region-or-line)
   :custom
-  (cursor-type 'bar)
   (make-backup-files nil)
   (c-basic-offset 2)
   (tab-width 2)
