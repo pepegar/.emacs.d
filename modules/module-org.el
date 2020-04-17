@@ -1,20 +1,8 @@
+(defvar org-files-path "~/org/")
+
 (use-package org
   :bind (("C-c a a" . org-agenda)
-         ("C-c c" . counsel-org-capture))
-  :config
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((dot . t)
-     (mscgen . t)
-     (python . t)
-     (restclient . t)
-     (haskell . t)))
-  (setq org-agenda-files '("~/Dropbox/org/")
-        org-capture-templates '(("t" "To Do Item" entry (file+headline "~/org/i.org" "Work") "* TODO %?\n%T" :prepend t)
-                                ("o" "opensource" entry (file+headline "~/org/i.org" "Opensource") "* TODO %?\n%T" :prepend t)
-                                ("p" "Personal To Do Item" entry (file+headline "~/org/i.org" "Personal") "* TODO %?\n%T" :prepend t))
-        org-src-fontify-natively t))
-
+         ("C-c c" . counsel-org-capture)))
 
 (use-package ob-restclient
   :after org)
@@ -31,8 +19,9 @@
   :hook
   (after-init . org-roam-mode)
   :custom
-  (org-roam-directory "~/Dropbox/org")
+  (org-roam-directory org-files-path)
   (org-roam-graph-executable "~/.nix-profile/bin/dot")
+  (org-roam-completion-system 'ivy)
   :bind (:map org-roam-mode-map
               (("C-c n l" . org-roam)
                ("C-c n f" . org-roam-find-file)
@@ -41,8 +30,30 @@
               :map org-mode-map
               (("C-c n i" . org-roam-insert))))
 
-(use-package company-org-roam
-  :config
-  (push 'company-org-roam company-backends))
+(use-package deft
+  :after org
+  :bind
+  ("C-c n d" . deft)
+  :custom
+  (deft-recursive t)
+  (deft-use-filter-string-for-filename t)
+  (deft-default-extension "org")
+  (deft-directory org-files-path))
+
+(use-package org-journal
+  :bind
+  ("C-c n j" . org-journal-new-entry)
+  :custom
+  (org-journal-date-prefix "#+TITLE: ")
+  (org-journal-file-format "%Y-%m-%d.org")
+  (org-journal-dir org-files-path)
+  (org-journal-date-format "%A, %d %B %Y"))
+
+(use-package org-download
+  :after org
+  :bind
+  (:map org-mode-map
+        (("s-Y" . org-download-screenshot)
+         ("s-y" . org-download-yank))))
 
 (provide 'module-org)
