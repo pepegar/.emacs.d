@@ -25,3 +25,9 @@ network-security.data
 .#recentf
 elpa.zip
 forge-database.sqlite
+
+session.*
+.cache
+straight
+workspace
+org-journal.cache
