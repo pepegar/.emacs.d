@@ -20,5 +20,12 @@
   (company-lsp-async t)
   (company-lsp-enable-recompletion t))
 
+(use-package dap-mode
+  :ensure t
+  :after lsp-mode
+  :config
+  (dap-mode t)
+  (dap-ui-mode t))
+
 (provide '60-core-lsp)
 ;;; 60-core-lsp.el ends here
