@@ -9,7 +9,7 @@
   (doom-themes-enable-bold t)
   (doom-themes-enable-italic t)
   :config
-  (load-theme 'doom-nord-light t)
+  (load-theme 'doom-Iosvkem t)
   (doom-themes-org-config))
 
 (use-package dashboard
