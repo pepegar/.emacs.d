@@ -1,4 +1,5 @@
-(defvar org-files-path "~/org/")
+(defvar org-path "~/org")
+(defvar braindump-path "~/org/braindump/org")
 
 (use-package org
   :bind (("C-c a a" . org-agenda)
@@ -19,7 +20,7 @@
   :hook
   (after-init . org-roam-mode)
   :custom
-  (org-roam-directory org-files-path)
+  (org-roam-directory braindump-path)
   (org-roam-graph-executable "~/.nix-profile/bin/dot")
   (org-roam-completion-system 'ivy)
   :bind (:map org-roam-mode-map
@@ -28,7 +29,18 @@
                ("C-c n b" . org-roam-switch-to-buffer)
                ("C-c n g" . org-roam-graph-show))
               :map org-mode-map
-              (("C-c n i" . org-roam-insert))))
+              (("C-c n i" . org-roam-insert)))
+  :config
+  (setq org-roam-capture-templates
+        '(("d" "default" plain (function org-roam--capture-get-point)
+           "%?"
+           :file-name "${slug}"
+           :head "#+SETUPFILE:./hugo_setup.org
+#+HUGO_SECTION: zettels
+#+HUGO_SLUG: ${slug}
+#+TITLE: ${title}\n"
+           :unnarrowed t)
+          )))
 
 (use-package deft
   :after org
@@ -38,7 +50,7 @@
   (deft-recursive t)
   (deft-use-filter-string-for-filename t)
   (deft-default-extension "org")
-  (deft-directory org-files-path))
+  (deft-directory braindump-path))
 
 (use-package org-journal
   :bind
@@ -46,7 +58,7 @@
   :custom
   (org-journal-date-prefix "#+TITLE: ")
   (org-journal-file-format "%Y-%m-%d.org")
-  (org-journal-dir org-files-path)
+  (org-journal-dir org-path)
   (org-journal-date-format "%A, %d %B %Y"))
 
 (use-package org-download
@@ -55,5 +67,11 @@
   (:map org-mode-map
         (("s-Y" . org-download-screenshot)
          ("s-y" . org-download-yank))))
+
+(use-package ox-hugo
+  :ensure t            ;Auto-install the package from Melpa (optional)
+  :after ox
+  :config
+  (org-hugo-auto-export-mode))
 
 (provide 'module-org)
