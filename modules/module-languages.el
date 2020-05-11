@@ -24,4 +24,7 @@
                 js2-missing-semi-one-line-override nil
                 js2-bounce-indent-p nil))
 
+(use-package rust-mode
+  :ensure t)
+
 (provide 'module-languages)

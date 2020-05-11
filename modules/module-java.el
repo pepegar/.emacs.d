@@ -1,8 +1,7 @@
 ;;; module-java.el --- java integration
 
 (use-package lsp-java
-  :ensure t
-  :after lsp
+  :mode "\\.(java|gradle)$"
   :hook (java-mode . lsp))
 
 (provide 'module-java)
