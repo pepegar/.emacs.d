@@ -1,5 +1,19 @@
-(defvar org-path "~/org")
-(defvar braindump-path "~/org/braindump/org")
+(defvar org-path (concat (getenv "HOME") "/org"))
+(defvar braindump-path (concat (getenv "HOME") "/org/braindump/org"))
+(defvar zotero-library (concat (getenv "HOME") "/library.bib"))
+(defvar note-template
+  (concat
+   "#+TITLE: ${citekey}: ${title}\n"
+     "#+ROAM_KEY: ${ref}\n"
+     "#+SETUPFILE:./hugo_setup.org\n"
+     "#+HUGO_SECTION: zettels\n"
+     "#+HUGO_SLUG: ${slug}\n"
+     "\n"
+     "* Notes\n"
+     ":PROPERTIES:\n"
+     ":NOTER_DOCUMENT: %(orb-process-file-field \"${citekey}\")\n"
+     ":NOTER_PAGE:\n"
+     ":END:\n\n"))
 
 (use-package org
   :bind (("C-c a a" . org-agenda)
@@ -35,10 +49,10 @@
         '(("d" "default" plain (function org-roam--capture-get-point)
            "%?"
            :file-name "${slug}"
-           :head "#+SETUPFILE:./hugo_setup.org
-#+HUGO_SECTION: zettels
-#+HUGO_SLUG: ${slug}
-#+TITLE: ${title}\n"
+           :head (s-join "\n" '("#+SETUPFILE:./hugo_setup.org"
+                                 "#+HUGO_SECTION: zettels"
+                                 "#+HUGO_SLUG: ${slug}"
+                                 "#+TITLE: ${title}"))
            :unnarrowed t)
           )))
 
@@ -69,9 +83,85 @@
          ("s-y" . org-download-yank))))
 
 (use-package ox-hugo
-  :ensure t            ;Auto-install the package from Melpa (optional)
+  :ensure t
   :after ox
   :config
   (org-hugo-auto-export-mode))
+
+(use-package pdf-tools
+  :ensure t)
+
+(use-package org-ref
+  :ensure t
+  :config
+  (setq
+   org-ref-completion-library 'org-ref-ivy-cite
+   org-ref-get-pdf-filename-function 'org-ref-get-pdf-filename-helm-bibtex
+   org-ref-default-bibliography (list zotero-library)
+   org-ref-bibliography-notes (concat braindump-path "bibnotes.org")
+   org-ref-note-title-format (s-join "\n" '(
+                                            "* TODO %y - %t"
+                                            ":PROPERTIES:"
+                                            ":Custom_ID: %k"
+                                            ":NOTER_DOCUMENT: %F"
+                                            ":ROAM_KEY: cite:%k"
+                                            ":AUTHOR: %9a"
+                                            ":JOURNAL: %j"
+                                            ":YEAR: %y"
+                                            ":VOLUME: %v"
+                                            ":PAGES: %p"
+                                            ":DOI: %D"
+                                            ":URL: %U"
+                                            ":END:"
+                                            ))
+   org-ref-notes-directory braindump-path
+   org-ref-notes-function 'orb-edit-notes
+   ))
+
+(use-package bibtex-completion
+  :ensure t)
+
+(use-package org-roam-bibtex
+  :requires bibtex-completion
+  :hook (org-roam-mode . org-roam-bibtex-mode)
+  :load-path "~/projects/org-roam-bibtex/"
+  :bind (:map org-roam-bibtex-mode-map
+              (("C-c m f" . orb-find-non-ref-file))
+              :map org-mode-map
+              (("C-c m t" . orb-insert-non-ref)
+               ("C-c m a" . orb-note-actions)))
+  :custom
+  (orb-templates
+   `(("n" "ref + noter" plain
+      (function org-roam-capture--get-point)
+      ""
+      :file-name "${slug}"
+      :head ""
+      ;note-template
+      ))))
+
+(use-package ivy-bibtex
+  :ensure t
+  :bind* ("C-c C-r" . ivy-bibtex)
+  :config
+  (setq
+   bibtex-completion-bibliography zotero-library
+   bibtex-completion-notex-path braindump-path
+   bibtex-completion-pdf-field "file"
+   bibtex-completion-notes-template-multiple-files "";note-template
+   ))
+
+(use-package org-noter
+  :after (:any org pdf-view)
+  :config
+  (setq
+   ;; The WM can handle splits
+   org-noter-notes-window-location 'other-frame
+   ;; Please stop opening frames
+   org-noter-always-create-frame nil
+   ;; I want to see the whole file
+   org-noter-hide-other nil
+   ;; Everything is relative to the main notes file
+   org-noter-notes-search-path (list org_notes)))
 
 (provide 'module-org)
