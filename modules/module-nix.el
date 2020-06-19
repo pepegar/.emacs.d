@@ -1,4 +1,5 @@
 (use-package nix-mode
+  :straight t
   :commands nix-mode
   :init
   (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))

@@ -1,9 +1,11 @@
 ;;; 20-core-ui.el --- User Insterface core
 
 (use-package all-the-icons
+  :straight t
   :commands (all-the-icons-faicon))
 
 (use-package doom-themes
+  :straight t
   :demand t
   :custom
   (doom-themes-enable-bold t)
@@ -13,6 +15,7 @@
   (doom-themes-org-config))
 
 (use-package dashboard
+  :straight t
   :demand
   :if (< (length command-line-args) 2)
   :bind (:map dashboard-mode-map
@@ -60,9 +63,11 @@
   :custom
   (whitespace-style '(face tabs trailing)))
 
-(use-package rainbow-mode)
+(use-package rainbow-mode
+  :straight t)
 
 (use-package rainbow-delimiters
+  :straight t
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (unless (version< emacs-version "26.1")
@@ -76,11 +81,13 @@
     (linum-format "%4d")))
 
 (use-package zoom-window
+  :straight t
   :bind (("C-x C-z" . zoom-window-zoom))
   :custom
   (zoom-window-mode-line-color "DarkRed" "Modeline color when enabled"))
 
 (use-package ace-window
+  :straight t
   :bind (("M-o" . ace-window))
   :custom
   (aw-dispatch-always t "Issue read-char even for one window")
@@ -98,12 +105,22 @@
     (set-fontset-font t 'unicode "FontAwesome" nil 'prepend)))
 
 (use-package doom-modeline
+  :straight t
   :hook
   (after-init . doom-modeline-mode)
   :custom
   (doom-modeline-buffer-file-name-style 'relative-to-project)
   (doom-modeline-height 20)
   (doom-modeline-major-mode-color-icon t))
+
+(use-package golden-ratio
+  :straight t
+  :ensure t
+  :diminish golden-ratio-mode
+  :init
+  (golden-ratio-mode 1)
+  :config
+  (add-to-list 'golden-ratio-extra-commands 'ace-window))
 
 (provide '30-core-ui)
 ;;; 30-core-ui.el ends here

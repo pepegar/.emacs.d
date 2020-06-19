@@ -1,9 +1,12 @@
 ;;; 20-core-magit.el --- packages managements core
-(use-package magit)
+(use-package magit
+  :straight t)
 
-(use-package forge)
+(use-package forge
+  :straight t)
 
 (use-package git-gutter
+  :straight t
   :unless (version< emacs-version "26.1")
   :hook ((prog-mode text-mode) . git-gutter-mode)
   :diminish git-gutter-mode

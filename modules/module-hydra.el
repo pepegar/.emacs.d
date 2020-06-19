@@ -1,4 +1,5 @@
 (use-package hydra
+  :straight t
   :bind (("C-x t" . toggle/body)
          ("C-x j" . gotoline/body)
          ("C-x c" . orghydra/body)

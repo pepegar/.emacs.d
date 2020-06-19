@@ -4,6 +4,7 @@
 (require 'misc)
 
 (use-package auto-package-update
+  :straight t
   :custom
   (auto-package-update-last-update-day-path (concat cache-dir ".last-package-update-day"))
   (auto-package-update-delete-old-versions t))

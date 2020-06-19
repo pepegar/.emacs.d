@@ -1,6 +1,7 @@
 ;;; 50-core-company.el --- company integration
 
 (use-package company
+  :straight t
   :diminish
   :bind (("M-/" . company-complete)
          :map company-active-map
@@ -21,6 +22,7 @@
 
 (unless (version< emacs-version "26.1")
   (use-package company-box
+    :straight t
     :diminish
     :after (company)
     :hook (company-mode . company-box-mode)

@@ -16,21 +16,26 @@
      ":END:\n\n"))
 
 (use-package org
+  :straight t
   :bind (("C-c a a" . org-agenda)
          ("C-c c" . counsel-org-capture)))
 
 (use-package ob-restclient
+  :straight t
   :after org)
 
 (use-package org-bullets
+  :straight t
   :after org
   :commands (org-bullets-mode)
   :hook (org-mode-hook . org-bullets-mode))
 
 (use-package org-present
+  :straight t
   :after org)
 
 (use-package org-roam
+  :straight t
   :hook
   (after-init . org-roam-mode)
   :custom
@@ -57,6 +62,7 @@
           )))
 
 (use-package deft
+  :straight t
   :after org
   :bind
   ("C-c n d" . deft)
@@ -67,6 +73,7 @@
   (deft-directory braindump-path))
 
 (use-package org-journal
+  :straight t
   :bind
   ("C-c n j" . org-journal-new-entry)
   :custom
@@ -76,6 +83,7 @@
   (org-journal-date-format "%A, %d %B %Y"))
 
 (use-package org-download
+  :straight t
   :after org
   :bind
   (:map org-mode-map
@@ -83,15 +91,18 @@
          ("s-y" . org-download-yank))))
 
 (use-package ox-hugo
+  :straight t
   :ensure t
   :after ox
   :config
   (org-hugo-auto-export-mode))
 
 (use-package pdf-tools
+  :straight t
   :ensure t)
 
 (use-package org-ref
+  :straight t
   :ensure t
   :config
   (setq
@@ -119,9 +130,11 @@
    ))
 
 (use-package bibtex-completion
+  :straight t
   :ensure t)
 
 (use-package org-roam-bibtex
+  :straight t
   :requires bibtex-completion
   :hook (org-roam-mode . org-roam-bibtex-mode)
   :load-path "~/projects/org-roam-bibtex/"
@@ -141,6 +154,7 @@
       ))))
 
 (use-package ivy-bibtex
+  :straight t
   :ensure t
   :bind* ("C-c C-r" . ivy-bibtex)
   :config
@@ -152,6 +166,7 @@
    ))
 
 (use-package org-noter
+  :straight t
   :after (:any org pdf-view)
   :config
   (setq
